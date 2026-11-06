@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/playerSheetRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusable="true"
+    android:visibility="gone">
+
+    <View
+        android:id="@+id/playerSheetScrim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:background="#99000000"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <LinearLayout
+        android:id="@+id/playerSheetPanel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/yamusBg"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp">
+
+            <ru.yamus.app.ui.common.IconView
+                android:id="@+id/backButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackground"
+                android:contentDescription="@string/close_player"
+                android:padding="12dp"
+                app:srcCompat="@drawable/ic_back"
+                app:yamusTint="?attr/yamusText" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/now_playing"
+                android:textColor="?attr/yamusTextSub"
+                android:textSize="13sp" />
+
+            <ru.yamus.app.ui.common.IconView
+                android:id="@+id/dislikeButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackground"
+                android:padding="12dp"
+                app:srcCompat="@drawable/ic_thumb_down"
+                app:yamusTint="?attr/yamusText" />
+
+            <ru.yamus.app.ui.common.IconView
+                android:id="@+id/likeButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackground"
+                android:padding="12dp"
+                app:srcCompat="@drawable/ic_heart_outline"
+                app:yamusTint="?attr/yamusText" />
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal|center_vertical"
+                android:orientation="vertical"
+                android:paddingLeft="@dimen/player_content_padding"
+                android:paddingTop="8dp"
+                android:paddingRight="@dimen/player_content_padding"
+                android:paddingBottom="8dp">
+
+                <ImageView
+                    android:id="@+id/cover"
+                    android:layout_width="@dimen/player_cover_size"
+                    android:layout_height="@dimen/player_cover_size"
+                    android:background="?attr/yamusCard"
+                    android:contentDescription="@string/now_playing"
+                    android:scaleType="centerCrop" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:textColor="?attr/yamusText"
+                            android:textSize="@dimen/player_title_size"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/artist"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:textColor="?attr/yamusTextSub"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <ru.yamus.app.ui.common.IconView
+                        android:id="@+id/moreButton"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="10dp"
+                        app:srcCompat="@drawable/ic_more"
+                        app:yamusTint="?attr/yamusText" />
+                </LinearLayout>
+
+                <SeekBar
+                    android:id="@+id/seekBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/currentTime"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="0:00"
+                        android:textColor="?attr/yamusTextSub"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:id="@+id/totalTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0:00"
+                        android:textColor="?attr/yamusTextSub"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingBottom="10dp">
+
+                    <ru.yamus.app.ui.common.IconView
+                        android:id="@+id/shuffleButton"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/player_control_height"
+                        android:layout_weight="1"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="@dimen/player_control_padding"
+                        app:srcCompat="@drawable/ic_shuffle"
+                        app:yamusTint="?attr/yamusTextSub" />
+
+                    <ru.yamus.app.ui.common.IconView
+                        android:id="@+id/prevButton"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/player_control_height"
+                        android:layout_weight="1"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="@dimen/player_control_padding"
+                        app:srcCompat="@drawable/ic_prev"
+                        app:yamusTint="?attr/yamusText" />
+
+                    <FrameLayout
+                        android:id="@+id/playButton"
+                        android:layout_width="@dimen/player_play_size"
+                        android:layout_height="@dimen/player_play_size"
+                        android:layout_marginLeft="@dimen/player_play_margin"
+                        android:layout_marginRight="@dimen/player_play_margin"
+                        android:clickable="true"
+                        android:contentDescription="@string/play"
+                        android:focusable="true">
+
+                        <ru.yamus.app.ui.common.IconView
+                            android:id="@+id/playIcon"
+                            android:layout_width="@dimen/player_play_icon"
+                            android:layout_height="@dimen/player_play_icon"
+                            android:layout_gravity="center"
+                            app:srcCompat="@drawable/ic_play"
+                            app:yamusTint="?attr/yamusOnAccent" />
+                    </FrameLayout>
+
+                    <ru.yamus.app.ui.common.IconView
+                        android:id="@+id/nextButton"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/player_control_height"
+                        android:layout_weight="1"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="@dimen/player_control_padding"
+                        app:srcCompat="@drawable/ic_next"
+                        app:yamusTint="?attr/yamusText" />
+
+                    <ru.yamus.app.ui.common.IconView
+                        android:id="@+id/repeatButton"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/player_control_height"
+                        android:layout_weight="1"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="@dimen/player_control_padding"
+                        app:srcCompat="@drawable/ic_repeat"
+                        app:yamusTint="?attr/yamusTextSub" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</FrameLayout>

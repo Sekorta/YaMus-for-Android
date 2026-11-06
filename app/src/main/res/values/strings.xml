@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">YaMus</string>
+
+    <string name="nav_home">Главная</string>
+    <string name="nav_search">Поиск</string>
+    <string name="nav_me">Я</string>
+
+    <string name="login_title">YaMus</string>
+    <string name="login_subtitle">Клиент Яндекс Музыки</string>
+    <string name="login_token_hint">OAuth-токен</string>
+    <string name="login_by_token">Войти по токену</string>
+    <string name="login_by_code">Войти по коду устройства</string>
+    <string name="login_device_wait">Ожидание подтверждения…</string>
+    <string name="login_code_label">Код для входа</string>
+    <string name="login_device_open">Открыть страницу подтверждения</string>
+
+    <string name="home_title">Главная</string>
+    <string name="wave_title">Моя волна</string>
+    <string name="wave_on">Волна включена</string>
+    <string name="wave_off">Включить мою волну</string>
+    <string name="wave_stop">Остановить волну</string>
+    <string name="wave_loading">Загрузка…</string>
+    <string name="wave_track_state">Волна по треку</string>
+    <string name="wave_seed">По треку: %1$s — %2$s</string>
+    <string name="wave_back_normal">Вернуться к обычной волне</string>
+    <string name="wave_hint">Персональная станция, которая подбирает музыку под ваш вкус</string>
+
+    <string name="search_hint">Треки, артисты, альбомы</string>
+    <string name="search_tracks">Треки</string>
+    <string name="search_artists">Артисты</string>
+    <string name="search_albums">Альбомы</string>
+    <string name="search_empty">Ничего не найдено</string>
+    <string name="search_start">Введите запрос</string>
+
+    <string name="me_title">Я</string>
+    <string name="liked_tracks">Мне нравится</string>
+    <string name="playlists">Плейлисты</string>
+    <string name="settings">Настройки</string>
+    <string name="logout">Выйти из аккаунта</string>
+    <string name="quality">Качество</string>
+    <string name="theme">Тема</string>
+    <string name="theme_black">Чёрная</string>
+    <string name="theme_dark">Тёмная (синяя)</string>
+    <string name="theme_light">Светлая</string>
+    <string name="quality_max">Максимальное</string>
+    <string name="quality_medium">Среднее</string>
+    <string name="quality_low">Низкое</string>
+    <string name="clear_cache">Очистить кэш</string>
+    <string name="cache_cleared">Кэш очищен</string>
+    <string name="notification_channel">Воспроизведение</string>
+    <string name="notification_channel_desc">Управление музыкой и текущий трек</string>
+
+    <string name="now_playing">Сейчас играет</string>
+    <string name="close_player">Закрыть плеер</string>
+    <string name="nothing_playing">Ничего не играет</string>
+    <string name="play">Воспроизвести</string>
+    <string name="pause">Пауза</string>
+    <string name="previous">Предыдущий трек</string>
+    <string name="next">Следующий трек</string>
+    <string name="shuffle">Перемешать</string>
+    <string name="shuffle_unavailable">Перемешать (недоступно в «Моей волне»)</string>
+    <string name="repeat_off">Повтор выключен</string>
+    <string name="repeat_all">Повтор всех треков</string>
+    <string name="repeat_one">Повтор текущего трека</string>
+
+    <string name="track_album">Перейти к альбому</string>
+    <string name="track_artist">Перейти к исполнителю</string>
+    <string name="track_like">Мне нравится</string>
+    <string name="track_unlike">Убрать из «Мне нравится»</string>
+    <string name="track_dislike">Мне не нравится</string>
+    <string name="track_undislike">Убрать из «Мне не нравится»</string>
+    <string name="track_play_next">Играть следующим</string>
+    <string name="track_wave">Моя волна по треку</string>
+    <string name="track_add_playlist">Добавить в плейлист</string>
+    <string name="track_share">Поделиться ссылкой</string>
+    <string name="album_play">Слушать альбом</string>
+    <string name="more_options">Ещё</string>
+    <string name="link_copied">Ссылка скопирована</string>
+    <string name="link_unavailable">Ссылку не удалось получить</string>
+    <string name="link_copy_failed">Не удалось скопировать ссылку</string>
+    <string name="choose_artist">Выберите исполнителя</string>
+    <string name="add_to_playlist_title">Добавить в плейлист</string>
+    <string name="no_playlists">Нет плейлистов</string>
+
+    <string name="error_network">Ошибка сети</string>
+    <string name="error_token">Неверный токен</string>
+    <string name="retry">Повторить</string>
+    <string name="cancel">Отмена</string>
+    <string name="ok">ОК</string>
+    <string name="loading">Загрузка…</string>
+    <string name="tracks_count">Треков: %1$d</string>
+    <string name="albums">Альбомы</string>
+    <string name="popular_tracks">Популярные треки</string>
+    <string name="all_tracks">Все треки</string>
+</resources>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="yamusBg" format="color" />
+    <attr name="yamusCard" format="color" />
+    <attr name="yamusCardElevated" format="color" />
+    <attr name="yamusText" format="color" />
+    <attr name="yamusTextSub" format="color" />
+    <attr name="yamusAccent" format="color" />
+    <attr name="yamusOnAccent" format="color" />
+    <attr name="yamusDivider" format="color" />
+    <attr name="yamusError" format="color" />
+
+    <declare-styleable name="IconView">
+        <attr name="yamusTint" format="color" />
+    </declare-styleable>
+</resources>

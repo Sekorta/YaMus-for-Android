@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="player_content_padding">24dp</dimen>
+    <dimen name="player_cover_size">260dp</dimen>
+    <dimen name="player_control_height">56dp</dimen>
+    <dimen name="player_control_padding">14dp</dimen>
+    <dimen name="player_play_size">64dp</dimen>
+    <dimen name="player_play_icon">32dp</dimen>
+    <dimen name="player_play_margin">8dp</dimen>
+    <dimen name="player_title_size">21sp</dimen>
+
+    <dimen name="home_card_padding">24dp</dimen>
+    <dimen name="home_avatar">64dp</dimen>
+    <dimen name="home_wave_icon">64dp</dimen>
+    <dimen name="home_wave_title">22sp</dimen>
+    <dimen name="home_hint_margin">18dp</dimen>
+</resources>

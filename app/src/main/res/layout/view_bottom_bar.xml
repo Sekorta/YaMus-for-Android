@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bottomBar"
+    android:layout_width="match_parent"
+    android:layout_height="58dp"
+    android:background="?attr/yamusCard"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:id="@+id/tabHome"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:contentDescription="@string/nav_home"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ru.yamus.app.ui.common.IconView
+            android:id="@+id/tabHomeIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            app:srcCompat="@drawable/ic_home"
+            app:yamusTint="?attr/yamusTextSub" />
+
+        <TextView
+            android:id="@+id/tabHomeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="@string/nav_home"
+            android:textColor="?attr/yamusTextSub"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/tabSearch"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:contentDescription="@string/nav_search"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ru.yamus.app.ui.common.IconView
+            android:id="@+id/tabSearchIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            app:srcCompat="@drawable/ic_search"
+            app:yamusTint="?attr/yamusTextSub" />
+
+        <TextView
+            android:id="@+id/tabSearchText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="@string/nav_search"
+            android:textColor="?attr/yamusTextSub"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/tabMe"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:contentDescription="@string/nav_me"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ru.yamus.app.ui.common.IconView
+            android:id="@+id/tabMeIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            app:srcCompat="@drawable/ic_person"
+            app:yamusTint="?attr/yamusTextSub" />
+
+        <TextView
+            android:id="@+id/tabMeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="@string/nav_me"
+            android:textColor="?attr/yamusTextSub"
+            android:textSize="11sp" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Базовые значения рассчитаны на узкие экраны старых телефонов
+         (320dp по ширине). Для обычных и крупных экранов они
+         переопределяются в values-sw360dp. -->
+    <dimen name="player_content_padding">12dp</dimen>
+    <dimen name="player_cover_size">180dp</dimen>
+    <dimen name="player_control_height">48dp</dimen>
+    <dimen name="player_control_padding">12dp</dimen>
+    <dimen name="player_play_size">56dp</dimen>
+    <dimen name="player_play_icon">28dp</dimen>
+    <dimen name="player_play_margin">6dp</dimen>
+    <dimen name="player_title_size">19sp</dimen>
+
+    <dimen name="home_card_padding">12dp</dimen>
+    <dimen name="home_avatar">56dp</dimen>
+    <dimen name="home_wave_icon">48dp</dimen>
+    <dimen name="home_wave_title">20sp</dimen>
+    <dimen name="home_hint_margin">10dp</dimen>
+</resources>

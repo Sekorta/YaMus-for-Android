@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Ключи для setTag: кэш найденных view внутри строки списка. -->
+    <item name="track_row_views" type="id" />
+    <item name="album_row_views" type="id" />
+</resources>
