@@ -27,11 +27,18 @@ class AlbumActivity : BaseActivity() {
 
     companion object {
         private const val EXTRA_ID = "album_id"
+        private const val EXTRA_TRACK_ID = "track_id"
         private const val EXTRA_TITLE = "album_title"
 
         fun intent(context: Context, albumId: Long, title: String?): Intent =
             Intent(context, AlbumActivity::class.java)
                 .putExtra(EXTRA_ID, albumId)
+                .putExtra(EXTRA_TITLE, title)
+
+        /** Ссылка на трек: альбом определяется по самому треку. */
+        fun trackIntent(context: Context, trackId: String, title: String? = null): Intent =
+            Intent(context, AlbumActivity::class.java)
+                .putExtra(EXTRA_TRACK_ID, trackId)
                 .putExtra(EXTRA_TITLE, title)
     }
 
@@ -56,11 +63,12 @@ class AlbumActivity : BaseActivity() {
         progress = findViewById(R.id.progress)
 
         val albumId = intent.getLongExtra(EXTRA_ID, 0L)
-        if (albumId <= 0) {
+        val trackId = intent.getStringExtra(EXTRA_TRACK_ID)
+        if (albumId <= 0 && trackId.isNullOrBlank()) {
             finish()
             return
         }
-        this.albumId = albumId
+        if (albumId > 0) this.albumId = albumId
 
         val knownTitle = intent.getStringExtra(EXTRA_TITLE)
             ?: getString(R.string.albums)
@@ -77,7 +85,11 @@ class AlbumActivity : BaseActivity() {
         list.layoutManager = LinearLayoutManager(this)
         list.adapter = adapter
 
-        load(albumId)
+        if (albumId > 0) {
+            load(albumId)
+        } else {
+            trackId?.let { loadAlbumForTrack(it) }
+        }
     }
 
     private fun showOptions() {
@@ -114,7 +126,42 @@ class AlbumActivity : BaseActivity() {
         MenuDialog.show(this, toolbarTitle.text, groups)
     }
 
+    /**
+     * Ссылка вида /track/{id} не содержит альбома. Запрашиваем трек и берём
+     * альбом из ответа, а если API его не вернул — вторую часть составного
+     * идентификатора трека.
+     */
+    private fun loadAlbumForTrack(trackId: String) {
+        progress.visibility = View.VISIBLE
+        lifecycleScope.launch {
+            val track = try {
+                withContext(Dispatchers.IO) {
+                    ApiClient.api.getTracks(trackId).result?.firstOrNull()
+                }
+            } catch (_: Exception) {
+                null
+            }
+            if (isFinishing) return@launch
+
+            val album = track?.albums?.firstOrNull { it.id > 0 }
+            val resolvedId = album?.id
+                ?: track?.id?.substringAfter(':', "")?.toLongOrNull()
+                ?: trackId.substringAfter(':', "").toLongOrNull()
+
+            if (resolvedId == null || resolvedId <= 0) {
+                progress.visibility = View.GONE
+                PlaybackManager.toast(getString(R.string.link_album_not_found))
+                finish()
+                return@launch
+            }
+
+            album?.title?.takeIf { it.isNotBlank() }?.let { toolbarTitle.text = it }
+            load(resolvedId)
+        }
+    }
+
     private fun load(albumId: Long) {
+        this.albumId = albumId
         progress.visibility = View.VISIBLE
         lifecycleScope.launch {
             val detail = try {

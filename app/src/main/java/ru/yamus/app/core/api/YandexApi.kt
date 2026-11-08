@@ -40,6 +40,13 @@ interface YandexApi {
         @Path("kind") kind: Long
     ): PlaylistResponse
 
+    /** API принимает в пути как uid, так и логин владельца. */
+    @GET("users/{user}/playlists/{kind}")
+    suspend fun getPlaylistByUser(
+        @Path("user") user: String,
+        @Path("kind") kind: Long
+    ): PlaylistResponse
+
     @GET("users/{uid}/likes/tracks")
     suspend fun getLikedIds(@Path("uid") uid: Long): LikeIdsResponse
 

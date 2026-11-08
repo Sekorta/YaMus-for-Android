@@ -83,6 +83,9 @@
     <string name="link_copied">Ссылка скопирована</string>
     <string name="link_unavailable">Ссылку не удалось получить</string>
     <string name="link_copy_failed">Не удалось скопировать ссылку</string>
+    <string name="link_unsupported">Эта ссылка не поддерживается</string>
+    <string name="link_album_not_found">Не удалось найти альбом</string>
+    <string name="link_user_not_found">Не удалось определить пользователя</string>
     <string name="choose_artist">Выберите исполнителя</string>
     <string name="add_to_playlist_title">Добавить в плейлист</string>
     <string name="no_playlists">Нет плейлистов</string>

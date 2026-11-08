@@ -45,6 +45,31 @@
             android:name=".ui.playlist.PlaylistActivity"
             android:exported="false" />
 
+        <!-- Ссылки music.yandex.* открываются в приложении. Прозрачная
+             Activity сразу передаёт ссылку в MainActivity. -->
+        <activity
+            android:name=".ui.common.LinkRouterActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="music.yandex.ru" />
+                <data android:host="music.yandex.com" />
+                <data android:host="music.yandex.by" />
+                <data android:host="music.yandex.kz" />
+                <data android:host="music.yandex.uz" />
+                <data android:host="music.yandex.com.tr" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".ui.artist.ArtistTracksActivity"
             android:exported="false" />

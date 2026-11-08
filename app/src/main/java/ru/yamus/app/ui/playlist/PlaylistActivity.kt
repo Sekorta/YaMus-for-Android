@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.yamus.app.R
 import ru.yamus.app.core.api.ApiClient
+import ru.yamus.app.core.data.AccountStore
 import ru.yamus.app.core.data.LikesStore
 import ru.yamus.app.core.data.TracksLoader
 import ru.yamus.app.core.models.Track
@@ -30,6 +31,7 @@ class PlaylistActivity : BaseActivity() {
 
     companion object {
         private const val EXTRA_UID = "uid"
+        private const val EXTRA_USER = "user"
         private const val EXTRA_KIND = "kind"
         private const val EXTRA_TITLE = "title"
         private const val EXTRA_COVER = "cover"
@@ -47,6 +49,13 @@ class PlaylistActivity : BaseActivity() {
             .putExtra(EXTRA_TITLE, title)
             .putExtra(EXTRA_COVER, cover)
             .putExtra(EXTRA_LIKED, false)
+
+        /** Ссылка на плейлист: [user] — логин или uid, null — свой плейлист. */
+        fun userIntent(context: Context, user: String?, kind: Long): Intent =
+            Intent(context, PlaylistActivity::class.java)
+                .putExtra(EXTRA_USER, user)
+                .putExtra(EXTRA_KIND, kind)
+                .putExtra(EXTRA_LIKED, false)
 
         fun likedIntent(context: Context, uid: Long): Intent =
             Intent(context, PlaylistActivity::class.java)
@@ -97,12 +106,13 @@ class PlaylistActivity : BaseActivity() {
         val uid = intent.getLongExtra(EXTRA_UID, 0L)
         val liked = intent.getBooleanExtra(EXTRA_LIKED, false)
         val kind = intent.getLongExtra(EXTRA_KIND, 0L)
+        val user = intent.getStringExtra(EXTRA_USER)?.takeIf { it.isNotBlank() }
         queueTag = if (liked) "liked:$uid" else "playlist:$uid:$kind"
 
         if (liked) {
             loadLiked(uid)
         } else {
-            if (uid <= 0 || kind <= 0) {
+            if (kind <= 0) {
                 finish()
                 return
             }
@@ -111,7 +121,11 @@ class PlaylistActivity : BaseActivity() {
                 toolbarTitle.text = it
             }
             loadCover(intent.getStringExtra(EXTRA_COVER))
-            loadPlaylist(uid, kind)
+            when {
+                uid > 0 -> loadPlaylist(uid, kind)
+                user != null -> loadPlaylistForUser(user, kind)
+                else -> loadOwnPlaylist(kind)
+            }
         }
     }
 
@@ -145,12 +159,43 @@ class PlaylistActivity : BaseActivity() {
         }
     }
 
-    private fun loadPlaylist(uid: Long, kind: Long) {
+    /** Ссылка без логина: плейлист текущего пользователя. */
+    private fun loadOwnPlaylist(kind: Long) {
+        progress.visibility = View.VISIBLE
+        lifecycleScope.launch {
+            val uid = AccountStore.uid.takeIf { it > 0 }
+                ?: AccountStore.load()?.uid
+            if (isFinishing) return@launch
+
+            if (uid == null || uid <= 0) {
+                progress.visibility = View.GONE
+                PlaybackManager.toast(getString(R.string.link_user_not_found))
+                finish()
+                return@launch
+            }
+            loadPlaylist(uid, kind)
+        }
+    }
+
+    /** В ссылке владелец может быть логином: API принимает его прямо в пути. */
+    private fun loadPlaylistForUser(user: String, kind: Long) {
+        val uid = user.toLongOrNull()
+        if (uid != null && uid > 0) {
+            loadPlaylist(uid, kind)
+        } else {
+            loadPlaylist(user, kind)
+        }
+    }
+
+    private fun loadPlaylist(uid: Long, kind: Long) = loadPlaylist(uid.toString(), kind)
+
+    private fun loadPlaylist(owner: String, kind: Long) {
+        queueTag = "playlist:$owner:$kind"
         progress.visibility = View.VISIBLE
         lifecycleScope.launch {
             val detail = try {
                 withContext(Dispatchers.IO) {
-                    ApiClient.api.getPlaylist(uid, kind).result
+                    ApiClient.api.getPlaylistByUser(owner, kind).result
                 }
             } catch (_: Exception) {
                 null
@@ -160,6 +205,10 @@ class PlaylistActivity : BaseActivity() {
                 progress.visibility = View.GONE
                 PlaybackManager.toast("Не удалось загрузить плейлист")
                 return@launch
+            }
+
+            detail.owner?.uid?.takeIf { it > 0 }?.let {
+                queueTag = "playlist:$it:$kind"
             }
 
             val items = detail.tracks.orEmpty()

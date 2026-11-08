@@ -29,6 +29,7 @@ import ru.yamus.app.core.auth.TokenStorage
 import ru.yamus.app.core.data.AccountStore
 import ru.yamus.app.core.net.TlsSupport
 import ru.yamus.app.ui.common.BaseActivity
+import ru.yamus.app.ui.common.DeepLinks
 import ru.yamus.app.ui.main.MainActivity
 import java.util.concurrent.TimeUnit
 
@@ -81,8 +82,7 @@ class LoginActivity : BaseActivity() {
         val existing = TokenStorage.token
         if (!existing.isNullOrEmpty()) {
             ApiClient.token = (existing)
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+            openMain()
             return
         }
 
@@ -339,7 +339,12 @@ class LoginActivity : BaseActivity() {
     }
 
     private fun openMain() {
-        startActivity(Intent(this, MainActivity::class.java))
+        val pending = DeepLinks.takePending(this)
+        if (!pending.isNullOrBlank()) {
+            MainActivity.openLink(this, pending)
+        } else {
+            startActivity(Intent(this, MainActivity::class.java))
+        }
         finish()
     }
 }

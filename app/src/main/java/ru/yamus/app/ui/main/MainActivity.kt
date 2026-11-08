@@ -2,7 +2,9 @@ package ru.yamus.app.ui.main
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import kotlinx.coroutines.launch
 import ru.yamus.app.R
@@ -10,8 +12,10 @@ import ru.yamus.app.core.auth.TokenStorage
 import ru.yamus.app.core.data.AccountStore
 import ru.yamus.app.core.data.DislikesStore
 import ru.yamus.app.core.data.LikesStore
+import ru.yamus.app.core.links.MusicLinks
 import ru.yamus.app.core.util.AppScope
 import ru.yamus.app.ui.common.BaseActivity
+import ru.yamus.app.ui.common.DeepLinks
 import ru.yamus.app.ui.common.PlaybackNotifications
 import ru.yamus.app.ui.home.HomeFragment
 import ru.yamus.app.ui.login.LoginActivity
@@ -22,12 +26,28 @@ class MainActivity : BaseActivity() {
 
     companion object {
         private const val EXTRA_TAB = "tab"
+        private const val EXTRA_LINK = "deep_link"
 
         /** Возвращает на главный экран с нужной вкладкой, закрывая вторичные экраны. */
         fun open(context: Context, tab: Int) {
             val intent = Intent(context, MainActivity::class.java)
                 .putExtra(EXTRA_TAB, tab)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            try {
+                context.startActivity(intent)
+            } catch (_: Exception) {
+            }
+        }
+
+        /** Открывает главный экран и передаёт ему ссылку для разбора. */
+        fun openLink(context: Context, url: String) {
+            val intent = Intent(context, MainActivity::class.java)
+                .putExtra(EXTRA_LINK, url)
+                .addFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                        Intent.FLAG_ACTIVITY_SINGLE_TOP
+                )
             try {
                 context.startActivity(intent)
             } catch (_: Exception) {
@@ -42,6 +62,7 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (TokenStorage.token.isNullOrEmpty()) {
+            intent.getStringExtra(EXTRA_LINK)?.let { DeepLinks.savePending(this, it) }
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
             return
@@ -55,6 +76,8 @@ class MainActivity : BaseActivity() {
         installPlayerSheet()
         installChrome(currentTab) { showTab(it) }
         showTab(currentTab)
+        // После поворота экрана ссылка уже обработана, повторно не открываем.
+        if (savedInstanceState == null) handleDeepLink(intent)
         PlaybackNotifications.requestIfPossible(this)
 
         // Лайки/дизлайки нужны плееру и спискам сразу, а не только после
@@ -75,6 +98,19 @@ class MainActivity : BaseActivity() {
         setIntent(intent)
         val tab = intent.getIntExtra(EXTRA_TAB, currentTab)
         if (tab in tags.indices) showTab(tab)
+        handleDeepLink(intent)
+    }
+
+    private fun handleDeepLink(source: Intent?) {
+        val url = source?.getStringExtra(EXTRA_LINK) ?: return
+        // Убираем ссылку, чтобы поворот экрана не открывал её заново.
+        source.removeExtra(EXTRA_LINK)
+        val destination = MusicLinks.parse(Uri.parse(url))
+        if (destination == null) {
+            Toast.makeText(this, R.string.link_unsupported, Toast.LENGTH_SHORT).show()
+            return
+        }
+        DeepLinks.open(this, destination)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
