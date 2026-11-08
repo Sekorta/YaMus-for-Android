@@ -88,6 +88,7 @@
     <string name="link_user_not_found">Не удалось определить пользователя</string>
     <string name="links_title">Открытие ссылок</string>
     <string name="links_item">Открытие ссылок: %1$s</string>
+    <string name="links_clipboard_auto">Предлагать ссылки из буфера: %1$s</string>
     <string name="links_on">включено</string>
     <string name="links_off">не включено</string>
     <string name="links_setup">Настроить</string>

@@ -23,8 +23,7 @@ object SettingsDialog {
             "${activity.getString(R.string.quality)}: ${qualityLabel(activity)}",
             "${activity.getString(R.string.theme)}: ${themeLabel(activity)}",
             "${activity.getString(R.string.clear_cache)} (${CacheManager.formatSize(CacheManager.size(activity))})",
-            activity.getString(R.string.notifications),
-            activity.getString(R.string.links_item, linksLabel(activity)),
+            activity.getString(R.string.links_title),
             activity.getString(R.string.open_link_from_clipboard),
             activity.getString(R.string.logout)
         )
@@ -35,10 +34,9 @@ object SettingsDialog {
                     0 -> showQuality(activity)
                     1 -> showTheme(activity)
                     2 -> clearCache(activity)
-                    3 -> PlaybackNotifications.openSettings(activity)
-                    4 -> LinkSettings.showDialog(activity)
-                    5 -> LinkSettings.openFromClipboard(activity)
-                    6 -> confirmLogout(activity)
+                    3 -> LinkSettings.showMenu(activity)
+                    4 -> LinkSettings.openFromClipboard(activity)
+                    5 -> confirmLogout(activity)
                 }
             }
             .setNegativeButton(R.string.cancel, null)
@@ -56,10 +54,6 @@ object SettingsDialog {
         TokenStorage.THEME_LIGHT -> activity.getString(R.string.theme_light)
         else -> activity.getString(R.string.theme_dark)
     }
-
-    private fun linksLabel(activity: Activity): String = activity.getString(
-        if (LinkSettings.areDomainsEnabled(activity)) R.string.links_on else R.string.links_off
-    )
 
     private fun showQuality(activity: Activity) {
         val values = arrayOf(

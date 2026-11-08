@@ -28,6 +28,7 @@ object LinkSettings {
 
     private const val PREFS = "yamus_links"
     private const val KEY_EXPLAINED = "explained"
+    private const val KEY_CLIPBOARD_AUTO = "clipboard_auto"
     private const val KEY_LAST_URL = "last_clipboard_url"
     private const val KEY_LAST_TIME = "last_clipboard_time"
 
@@ -83,8 +84,48 @@ object LinkSettings {
         }
     }
 
+    /** Подменю «Открытие ссылок» в настройках. */
+    fun showMenu(activity: Activity) {
+        if (activity.isFinishing) return
+        val state = { on: Boolean ->
+            activity.getString(if (on) R.string.links_on else R.string.links_off)
+        }
+        val items = arrayOf(
+            activity.getString(R.string.links_item, state(areDomainsEnabled(activity))),
+            activity.getString(R.string.links_clipboard_auto, state(isClipboardAutoEnabled(activity)))
+        )
+        try {
+            AlertDialog.Builder(activity)
+                .setTitle(R.string.links_title)
+                .setItems(items) { _, which ->
+                    when (which) {
+                        0 -> showDialog(activity)
+                        1 -> toggleClipboardAuto(activity)
+                    }
+                }
+                .setNegativeButton(R.string.close, null)
+                .show()
+        } catch (_: Exception) {
+        }
+    }
+
+    /** true, если при запуске можно предлагать ссылку из буфера. */
+    fun isClipboardAutoEnabled(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_CLIPBOARD_AUTO, true)
+
+    private fun setClipboardAutoEnabled(context: Context, enabled: Boolean) {
+        prefs(context).edit().putBoolean(KEY_CLIPBOARD_AUTO, enabled).apply()
+    }
+
+    private fun toggleClipboardAuto(activity: Activity) {
+        setClipboardAutoEnabled(activity, !isClipboardAutoEnabled(activity))
+        // Переоткрываем подменю, чтобы сразу показать новое состояние.
+        showMenu(activity)
+    }
+
     /** Предлагает ссылку, если она уже лежит в буфере обмена. */
     fun maybeOfferClipboard(activity: Activity) {
+        if (!isClipboardAutoEnabled(activity)) return
         if (clipboardChecked) return
         clipboardChecked = true
         val url = clipboardLink(activity) ?: return
