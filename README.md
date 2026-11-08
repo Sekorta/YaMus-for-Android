@@ -36,7 +36,7 @@
 
 - Android Studio с JDK 17 (подойдёт встроенный JBR).
 - Android SDK Platform 37 и Build-Tools 37.0.0.
-- Gradle устанавливать не надо — wrapper уже в проекте.
+- Gradle wrapper уже в проекте.
 
 ## Сборка
 
@@ -58,7 +58,7 @@ sdk.dir=C\:\\Users\\<пользователь>\\AppData\\Local\\Android\\Sdk
 
 Без ключа `assembleRelease` соберёт неподписанный APK. Для подписанного:
 
-1. Создайте ключ (храните его вне репозитория):
+1. Создайте ключ:
 
    ```bash
    keytool -genkeypair -v -keystore yamus-release.jks -alias yamus -keyalg RSA -keysize 2048 -validity 10000
@@ -67,7 +67,6 @@ sdk.dir=C\:\\Users\\<пользователь>\\AppData\\Local\\Android\\Sdk
 2. Скопируйте `keystore.properties.example` в `keystore.properties` и заполните значения.
 3. Выполните `./gradlew assembleRelease`.
 
-APK появится в `app/build/outputs/apk/release/`. Ключ и пароли в git не попадают. Ключ — «паспорт» приложения: им подписываются все версии, и при его потере установленное приложение нельзя будет обновить, только переустановить.
 
 ## Файлы проекта
 
@@ -79,8 +78,6 @@ APK появится в `app/build/outputs/apk/release/`. Ключ и парол
 | `gradle.properties` | Флаги сборщика: AndroidX, память, предупреждения SDK. |
 | `gradlew`, `gradlew.bat` | Скрипт сборки: сам скачивает нужную версию Gradle. |
 | `gradle/wrapper/` | Настройки и jar для `gradlew` (Gradle 8.11.1). |
-| `local.properties` | Путь к Android SDK. Локальный, в git не попадает. |
-| `keystore.properties`, `*.jks` | Ключ подписи и пароли. Локальные, в git не попадают. |
 | `app/src/main/AndroidManifest.xml` | Разрешения, экраны и службы приложения. |
 | `app/src/main/java/` | Код на Kotlin. |
 | `app/src/main/res/` | Разметка, картинки, строки и темы. |
@@ -121,7 +118,6 @@ app/src/main/java/ru/yamus/app/
 - API неофициальный и может измениться в любой момент.
 - Интерфейс только на русском, отдельной вёрстки для планшетов нет.
 - Постоянного офлайн-режима нет: кэш временный.
-- Автотестов нет — проверялось вручную на Android 4.2.2 и на эмуляторе API 37.
 
 ## Дисклеймер
 
