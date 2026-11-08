@@ -51,7 +51,6 @@
             android:name=".ui.common.LinkRouterActivity"
             android:excludeFromRecents="true"
             android:exported="true"
-            android:noHistory="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -67,6 +66,13 @@
                 <data android:host="music.yandex.kz" />
                 <data android:host="music.yandex.uz" />
                 <data android:host="music.yandex.com.tr" />
+            </intent-filter>
+            <!-- «Поделиться» ссылкой из браузера или Яндекс Музыки.
+                 Работает всегда, даже если домены не включены в системе. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
 

@@ -9,6 +9,7 @@ import ru.yamus.app.core.data.AccountStore
 import ru.yamus.app.core.data.DislikesStore
 import ru.yamus.app.core.data.LikesStore
 import ru.yamus.app.core.data.WaveHistoryStore
+import ru.yamus.app.core.links.LinkSettings
 import ru.yamus.app.core.player.PlaybackManager
 import ru.yamus.app.core.util.AppScope
 import ru.yamus.app.core.util.CacheManager
@@ -23,6 +24,8 @@ object SettingsDialog {
             "${activity.getString(R.string.theme)}: ${themeLabel(activity)}",
             "${activity.getString(R.string.clear_cache)} (${CacheManager.formatSize(CacheManager.size(activity))})",
             activity.getString(R.string.notifications),
+            activity.getString(R.string.links_item, linksLabel(activity)),
+            activity.getString(R.string.open_link_from_clipboard),
             activity.getString(R.string.logout)
         )
         AlertDialog.Builder(activity)
@@ -33,7 +36,9 @@ object SettingsDialog {
                     1 -> showTheme(activity)
                     2 -> clearCache(activity)
                     3 -> PlaybackNotifications.openSettings(activity)
-                    4 -> confirmLogout(activity)
+                    4 -> LinkSettings.showDialog(activity)
+                    5 -> LinkSettings.openFromClipboard(activity)
+                    6 -> confirmLogout(activity)
                 }
             }
             .setNegativeButton(R.string.cancel, null)
@@ -51,6 +56,10 @@ object SettingsDialog {
         TokenStorage.THEME_LIGHT -> activity.getString(R.string.theme_light)
         else -> activity.getString(R.string.theme_dark)
     }
+
+    private fun linksLabel(activity: Activity): String = activity.getString(
+        if (LinkSettings.areDomainsEnabled(activity)) R.string.links_on else R.string.links_off
+    )
 
     private fun showQuality(activity: Activity) {
         val values = arrayOf(

@@ -12,6 +12,7 @@ import ru.yamus.app.core.auth.TokenStorage
 import ru.yamus.app.core.data.AccountStore
 import ru.yamus.app.core.data.DislikesStore
 import ru.yamus.app.core.data.LikesStore
+import ru.yamus.app.core.links.LinkSettings
 import ru.yamus.app.core.links.MusicLinks
 import ru.yamus.app.core.util.AppScope
 import ru.yamus.app.ui.common.BaseActivity
@@ -59,6 +60,12 @@ class MainActivity : BaseActivity() {
 
     private val tags = arrayOf("home", "search", "me")
 
+    /** Подсказку про ссылки показываем один раз за запуск экрана. */
+    private var linkPromptShown = false
+
+    /** Экран открыт по ссылке: подсказки не должны перекрывать переход. */
+    private var openedFromLink = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (TokenStorage.token.isNullOrEmpty()) {
@@ -101,8 +108,21 @@ class MainActivity : BaseActivity() {
         handleDeepLink(intent)
     }
 
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (!hasFocus || linkPromptShown) return
+        linkPromptShown = true
+        if (openedFromLink) return
+        // Буфер читаем только когда окно получило фокус: Android 10+
+        // не отдаёт его приложение в фоне.
+        if (!LinkSettings.maybeShowSetup(this)) {
+            LinkSettings.maybeOfferClipboard(this)
+        }
+    }
+
     private fun handleDeepLink(source: Intent?) {
         val url = source?.getStringExtra(EXTRA_LINK) ?: return
+        openedFromLink = true
         // Убираем ссылку, чтобы поворот экрана не открывал её заново.
         source.removeExtra(EXTRA_LINK)
         val destination = MusicLinks.parse(Uri.parse(url))

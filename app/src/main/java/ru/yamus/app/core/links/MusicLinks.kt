@@ -46,6 +46,15 @@ object MusicLinks {
         "music.yandex.com.tr"
     )
 
+    /**
+     * Ссылка внутри текста: например, при отправке из другого приложения
+     * через «Поделиться» приходит не чистый URL, а строка с подписью.
+     */
+    private val URL_IN_TEXT = Regex(
+        """https?://music\.yandex\.(?:ru|com|by|kz|uz|com\.tr)/[^\s"'<>]*""",
+        RegexOption.IGNORE_CASE
+    )
+
     fun parse(uri: Uri?): MusicDestination? {
         if (uri == null) return null
         val scheme = uri.scheme?.lowercase() ?: return null
@@ -62,6 +71,14 @@ object MusicLinks {
         } catch (_: Exception) {
             null
         }
+    }
+
+    /** Ищет первую поддерживаемую ссылку в произвольном тексте. */
+    fun findUrl(text: String?): String? {
+        if (text.isNullOrBlank()) return null
+        val match = URL_IN_TEXT.find(text)?.value ?: return null
+        val cleaned = match.trimEnd('.', ',', ';', ')', ']', '}', '!')
+        return cleaned.takeIf { parse(it) != null }
     }
 
     private fun parseSegments(segments: List<String>): MusicDestination? {
