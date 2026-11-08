@@ -1,13 +1,8 @@
 package ru.yamus.app.ui.main
 
-import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import kotlinx.coroutines.launch
 import ru.yamus.app.R
@@ -17,6 +12,7 @@ import ru.yamus.app.core.data.DislikesStore
 import ru.yamus.app.core.data.LikesStore
 import ru.yamus.app.core.util.AppScope
 import ru.yamus.app.ui.common.BaseActivity
+import ru.yamus.app.ui.common.PlaybackNotifications
 import ru.yamus.app.ui.home.HomeFragment
 import ru.yamus.app.ui.login.LoginActivity
 import ru.yamus.app.ui.me.MeFragment
@@ -59,7 +55,7 @@ class MainActivity : BaseActivity() {
         installPlayerSheet()
         installChrome(currentTab) { showTab(it) }
         showTab(currentTab)
-        requestNotificationPermission()
+        PlaybackNotifications.requestIfPossible(this)
 
         // Лайки/дизлайки нужны плееру и спискам сразу, а не только после
         // открытия вкладки «Я».
@@ -70,24 +66,6 @@ class MainActivity : BaseActivity() {
             if (uid > 0) {
                 if (!LikesStore.loaded) LikesStore.load(uid)
                 if (!DislikesStore.loaded) DislikesStore.load(uid)
-            }
-        }
-    }
-
-    private fun requestNotificationPermission() {
-        if (Build.VERSION.SDK_INT < 33) return
-        val granted = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.POST_NOTIFICATIONS
-        ) == PackageManager.PERMISSION_GRANTED
-        if (!granted) {
-            try {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                    300
-                )
-            } catch (_: Exception) {
             }
         }
     }

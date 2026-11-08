@@ -50,6 +50,10 @@
     <string name="cache_cleared">Кэш очищен</string>
     <string name="notification_channel">Воспроизведение</string>
     <string name="notification_channel_desc">Управление музыкой и текущий трек</string>
+    <string name="notifications">Уведомления и экран блокировки</string>
+    <string name="notifications_blocked">Разрешите уведомления для YaMus. На Android 13+ без них системный плеер может не появиться в шторке и на экране блокировки.</string>
+    <string name="open_settings">Открыть настройки</string>
+    <string name="later">Позже</string>
 
     <string name="now_playing">Сейчас играет</string>
     <string name="close_player">Закрыть плеер</string>

@@ -9,6 +9,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
+import ru.yamus.app.core.player.PlaybackManager
 import ru.yamus.app.ui.player.PlayerSheet
 
 /**
@@ -22,6 +23,17 @@ open class BaseActivity : AppCompatActivity() {
 
     protected var playerSheet: PlayerSheet? = null
     protected var chrome: ChromeController? = null
+
+    /**
+     * Как только начинается воспроизведение, проверяем, разрешены ли
+     * уведомления: без них на Android 13+ системный плеер может не появиться
+     * на экране блокировки.
+     */
+    private val notificationPrompt = object : PlaybackManager.Listener {
+        override fun onPlaybackChanged() {
+            runOnUiThread { PlaybackNotifications.ensure(this@BaseActivity) }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // apply() не только выставляет тему, но и сбрасывает кэш цветов:
@@ -91,12 +103,26 @@ open class BaseActivity : AppCompatActivity() {
         super.onStart()
         playerSheet?.attach()
         chrome?.start()
+        PlaybackManager.addListener(notificationPrompt)
+        if (PlaybackManager.currentTrack != null) PlaybackNotifications.ensure(this)
     }
 
     override fun onStop() {
+        PlaybackManager.removeListener(notificationPrompt)
         chrome?.stop()
         playerSheet?.detach()
         super.onStop()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PlaybackNotifications.REQUEST_CODE) {
+            PlaybackNotifications.onPermissionResult(this)
+        }
     }
 
     override fun onDestroy() {

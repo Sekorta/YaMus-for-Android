@@ -22,6 +22,7 @@ object SettingsDialog {
             "${activity.getString(R.string.quality)}: ${qualityLabel(activity)}",
             "${activity.getString(R.string.theme)}: ${themeLabel(activity)}",
             "${activity.getString(R.string.clear_cache)} (${CacheManager.formatSize(CacheManager.size(activity))})",
+            activity.getString(R.string.notifications),
             activity.getString(R.string.logout)
         )
         AlertDialog.Builder(activity)
@@ -31,7 +32,8 @@ object SettingsDialog {
                     0 -> showQuality(activity)
                     1 -> showTheme(activity)
                     2 -> clearCache(activity)
-                    3 -> confirmLogout(activity)
+                    3 -> PlaybackNotifications.openSettings(activity)
+                    4 -> confirmLogout(activity)
                 }
             }
             .setNegativeButton(R.string.cancel, null)

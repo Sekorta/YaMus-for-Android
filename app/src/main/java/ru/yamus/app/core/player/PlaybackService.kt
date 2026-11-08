@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
+import android.media.AudioManager
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
@@ -46,7 +47,7 @@ import java.util.concurrent.TimeUnit
 class PlaybackService : Service() {
 
     companion object {
-        private const val CHANNEL_ID = "yamus_playback"
+        const val CHANNEL_ID = "yamus_playback"
         private const val NOTIFICATION_ID = 1001
 
         private const val ACTION_UPDATE = "ru.yamus.app.action.PLAYER_UPDATE"
@@ -158,6 +159,26 @@ class PlaybackService : Service() {
         super.onCreate()
         running = true
         createChannel()
+        ensureSession()
+        LikesStore.addListener(likesListener)
+        DislikesStore.addListener(dislikesListener)
+    }
+
+    /**
+     * Создаёт сессию один раз и не даёт ей «погаснуть».
+     *
+     * Android 14+ строит карточку плеера на экране блокировки по активной
+     * MediaSession, привязанной к media-уведомлению. Если сессия к моменту
+     * публикации уведомления неактивна (или её успели освободить),
+     * SystemUI может показать уведомление без элементов управления.
+     */
+    @Suppress("DEPRECATION")
+    private fun ensureSession() {
+        val current = session
+        if (current != null) {
+            if (!current.isActive) current.isActive = true
+            return
+        }
         session = MediaSessionCompat(
             this,
             "YaMus",
@@ -171,10 +192,14 @@ class PlaybackService : Service() {
                 MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or
                     MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
             )
+            // Без явного локального воспроизведения MediaController на
+            // Android 14+ может считать сессию внешней (cast) — тогда
+            // стандартные кнопки в системном плеере не строятся.
+            setPlaybackToLocal(AudioManager.STREAM_MUSIC)
+            // Тап по карточке на экране блокировки открывает приложение.
+            setSessionActivity(contentIntent())
             isActive = true
         }
-        LikesStore.addListener(likesListener)
-        DislikesStore.addListener(dislikesListener)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -311,6 +336,7 @@ class PlaybackService : Service() {
             return
         }
 
+        ensureSession()
         updateLargeIcon(track)
         updateSessionState()
         val notification = buildNotification(track)
@@ -328,7 +354,14 @@ class PlaybackService : Service() {
                 foregroundStarted = true
             } catch (_: Exception) {
                 // Даже если система не разрешила foreground-сервис, плеер
-                // продолжает работать. Уведомление просто не появится.
+                // продолжает работать. Пробуем показать обычное уведомление:
+                // на Android 13+ карточка на экране блокировки строится по нему.
+                try {
+                    val manager =
+                        getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    manager.notify(NOTIFICATION_ID, notification)
+                } catch (_: Exception) {
+                }
             }
         } else {
             try {
@@ -365,6 +398,8 @@ class PlaybackService : Service() {
             val metadataBuilder = MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, track.displayTitle())
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, track.artistText())
+                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, track.displayTitle())
+                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, track.artistText())
             track.albums?.firstOrNull()?.title?.takeIf { it.isNotBlank() }?.let {
                 metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, it)
             }
@@ -376,6 +411,7 @@ class PlaybackService : Service() {
             icon?.let { art ->
                 metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, art)
                 metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, art)
+                metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, art)
             }
             session.setMetadata(metadataBuilder.build())
         }

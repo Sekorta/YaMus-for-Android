@@ -2,6 +2,7 @@ package ru.yamus.app.ui.common
 
 import android.content.Context
 import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.view.View
 
 /**
@@ -18,5 +19,13 @@ fun circleDrawable(context: Context, colorAttr: Int): GradientDrawable =
     }
 
 fun View.setCircleBackground(context: Context, colorAttr: Int) {
-    background = circleDrawable(context, colorAttr)
+    val drawable = circleDrawable(context, colorAttr)
+    // View.setBackground появился только в API 16, а приложение обещает
+    // работать на Android 4.0/4.1 (API 14–15).
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        background = drawable
+    } else {
+        @Suppress("DEPRECATION")
+        setBackgroundDrawable(drawable)
+    }
 }
