@@ -1,13 +1,13 @@
 # YaMus
 
-Неофициальный клиент Яндекс Музыки для Android 4+ (API 14–37). Написан на Kotlin с XML-разметкой и AppCompat — без Compose и Material Components, чтобы работал на старых телефонах и не разрастался.
+Неофициальный клиент Яндекс Музыки для Android 4+ (API 14–37). Написан на Kotlin с XML-разметкой и AppCompat — без Compose и Material Components.
 
 ![Android 4+](https://img.shields.io/badge/Android-4%2B-3DDC84?logo=android&logoColor=white)
 ![API 37](https://img.shields.io/badge/API-37-1E88E5)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.1-7F52FF?logo=kotlin&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-> **Это вайбкод.** Код писался в диалоге с ИИ, а не командой разработчиков. Местами решения наивные, зато проект небольшой и его можно прочитать целиком.
+> **Это вайбкод.** 
 
 ## Скриншоты
 
