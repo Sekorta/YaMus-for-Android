@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp"
             app:cardBackgroundColor="?attr/yamusCard"
-            app:cardCornerRadius="16dp"
+            app:cardCornerRadius="?attr/yamusCorner"
             app:cardElevation="0dp">
 
             <LinearLayout
@@ -104,7 +104,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             app:cardBackgroundColor="?attr/yamusCard"
-            app:cardCornerRadius="16dp"
+            app:cardCornerRadius="?attr/yamusCorner"
             app:cardElevation="0dp">
 
             <LinearLayout

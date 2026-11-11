@@ -5,8 +5,6 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import kotlinx.coroutines.launch
 import ru.yamus.app.R
 import ru.yamus.app.core.data.LikesStore
@@ -15,7 +13,6 @@ import ru.yamus.app.core.util.AppScope
 import ru.yamus.app.core.util.artistText
 import ru.yamus.app.core.util.coverUrl
 import ru.yamus.app.core.util.displayTitle
-import ru.yamus.app.core.util.dp
 
 /**
  * Мини-плеер и нижняя панель навигации. Одинаково работает на главной
@@ -123,7 +120,7 @@ class ChromeController(
             miniCover?.let {
                 Glide.with(activity)
                     .load(track.coverUrl(200))
-                    .apply(RequestOptions.bitmapTransform(RoundedCorners(activity.dp(6))))
+                    .apply(coverOptions(activity, 6))
                     .into(it)
             }
         }

@@ -20,12 +20,15 @@ import ru.yamus.app.R
 import ru.yamus.app.core.api.ApiClient
 import ru.yamus.app.core.models.SearchResponse
 import ru.yamus.app.core.player.PlaybackManager
+import ru.yamus.app.core.util.dp
 import ru.yamus.app.ui.common.AlbumAdapter
 import ru.yamus.app.ui.common.ArtistAdapter
 import ru.yamus.app.ui.common.IconView
 import ru.yamus.app.ui.common.Navigation
 import ru.yamus.app.ui.common.ThemeManager
 import ru.yamus.app.ui.common.TrackAdapter
+import ru.yamus.app.ui.common.fieldBackground
+import ru.yamus.app.ui.common.setBackgroundCompat
 
 class SearchFragment : Fragment() {
 
@@ -35,6 +38,7 @@ class SearchFragment : Fragment() {
     private lateinit var empty: TextView
     private lateinit var progress: ProgressBar
     private lateinit var tabs: Array<TextView>
+    private lateinit var tabIndicators: Array<View>
 
     private var mode = 0
     private var lastQuery = ""
@@ -71,6 +75,20 @@ class SearchFragment : Fragment() {
             view.findViewById(R.id.tabTracks),
             view.findViewById(R.id.tabArtists),
             view.findViewById(R.id.tabAlbums)
+        )
+        tabIndicators = arrayOf(
+            view.findViewById(R.id.tabTracksIndicator),
+            view.findViewById(R.id.tabArtistsIndicator),
+            view.findViewById(R.id.tabAlbumsIndicator)
+        )
+
+        // Поле поиска: скруглённая плашка в современном стиле и рамка —
+        // в стиле Android 4. Фон ставим после инфляции, чтобы отступы
+        // текста соответствовали новому фону.
+        input.setBackgroundCompat(fieldBackground(requireContext()))
+        input.setPadding(
+            requireContext().dp(14), 0,
+            requireContext().dp(14), 0
         )
 
         list.layoutManager = LinearLayoutManager(requireContext())
@@ -211,6 +229,11 @@ class SearchFragment : Fragment() {
         val inactive = ThemeManager.color(requireContext(), R.attr.yamusTextSub)
         tabs.forEachIndexed { index, tab ->
             tab.setTextColor(if (index == mode) accent else inactive)
+        }
+        tabIndicators.forEachIndexed { index, indicator ->
+            indicator.setBackgroundColor(
+                if (index == mode) accent else android.graphics.Color.TRANSPARENT
+            )
         }
     }
 

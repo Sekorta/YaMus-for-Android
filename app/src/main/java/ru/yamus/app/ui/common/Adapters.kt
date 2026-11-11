@@ -11,8 +11,6 @@ import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import com.bumptech.glide.request.RequestOptions
 import ru.yamus.app.R
 import ru.yamus.app.core.models.Album
 import ru.yamus.app.core.models.Artist
@@ -28,23 +26,6 @@ import ru.yamus.app.core.util.imageUrl
 import ru.yamus.app.core.util.ownerName
 import java.util.Collections
 import java.util.WeakHashMap
-
-private val roundedCoverOptions = HashMap<Int, RequestOptions>()
-
-/**
- * Опции Glide со скруглением обложки. RequestOptions неизменяемы, поэтому
- * создаём их один раз на радиус, а не на каждую привязку строки.
- * CardView ради скругления больше не нужен: на Android 4.x он заметно
- * увеличивал стоимость создания строки при прокрутке.
- */
-private fun coverOptions(context: android.content.Context, radiusDp: Int): RequestOptions {
-    val radiusPx = context.dp(radiusDp)
-    synchronized(roundedCoverOptions) {
-        return roundedCoverOptions.getOrPut(radiusPx) {
-            RequestOptions.bitmapTransform(RoundedCorners(radiusPx))
-        }
-    }
-}
 
 /** Заполнение строки трека и общие действия для неё. */
 object TrackRowBinder {
@@ -282,7 +263,7 @@ class ArtistAdapter(
             avatar.scaleType = ImageView.ScaleType.CENTER_CROP
             Glide.with(row)
                 .load(url)
-                .apply(RequestOptions.circleCropTransform())
+                .apply(avatarOptions(row.context))
                 .into(avatar)
         }
 

@@ -8,6 +8,7 @@ object TokenStorage {
     private const val PREFS = "yamus_prefs"
     private const val KEY_TOKEN = "oauth_token"
     private const val KEY_THEME = "theme"
+    private const val KEY_STYLE = "style"
     private const val KEY_QUALITY = "quality"
     private const val KEY_DEVICE_ID = "device_id"
     private const val KEY_UID = "uid"
@@ -15,6 +16,12 @@ object TokenStorage {
     const val THEME_BLACK = "black"
     const val THEME_DARK = "dark"
     const val THEME_LIGHT = "light"
+
+    /** Современный стиль: скругления, карточки, воздух. */
+    const val STYLE_MODERN = "modern"
+
+    /** Стиль Android 4 (Holo): прямые углы, плоские панели, плотные списки. */
+    const val STYLE_HOLO = "holo"
 
     const val QUALITY_MAX = "max"
     const val QUALITY_MEDIUM = "medium"
@@ -44,6 +51,18 @@ object TokenStorage {
         }
         set(value) {
             prefs.edit().putString(KEY_THEME, value).apply()
+        }
+
+    var style: String
+        get() {
+            val value = prefs.getString(KEY_STYLE, STYLE_MODERN) ?: STYLE_MODERN
+            return when (value) {
+                STYLE_MODERN, STYLE_HOLO -> value
+                else -> STYLE_MODERN
+            }
+        }
+        set(value) {
+            prefs.edit().putString(KEY_STYLE, value).apply()
         }
 
     var quality: String

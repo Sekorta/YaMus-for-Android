@@ -10,6 +10,24 @@
     <attr name="yamusDivider" format="color" />
     <attr name="yamusError" format="color" />
 
+    <!-- Стилевой слой. Цвета задаются темой (Black/Dark/Light), а эти
+         атрибуты — выбранным стилем (современный или Android 4). -->
+    <attr name="yamusCorner" format="dimension" />
+    <attr name="yamusCornerSmall" format="dimension" />
+    <attr name="yamusCornerPill" format="dimension" />
+    <attr name="yamusCoverCorner" format="integer" />
+    <attr name="yamusRowPadding" format="dimension" />
+    <attr name="yamusRowDivider" format="dimension" />
+    <attr name="yamusCardMargin" format="dimension" />
+    <attr name="yamusElevation" format="dimension" />
+    <attr name="yamusCoverElevation" format="dimension" />
+    <attr name="yamusToolbarLine" format="dimension" />
+    <attr name="yamusToolbarLineColor" format="color" />
+    <attr name="yamusTabIndicator" format="dimension" />
+    <attr name="yamusBarLine" format="dimension" />
+    <attr name="yamusFlat" format="boolean" />
+    <attr name="yamusHeaderCaps" format="boolean" />
+
     <declare-styleable name="IconView">
         <attr name="yamusTint" format="color" />
     </declare-styleable>

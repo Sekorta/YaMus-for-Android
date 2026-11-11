@@ -12,8 +12,6 @@ import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import kotlinx.coroutines.launch
 import ru.yamus.app.R
 import ru.yamus.app.core.data.DislikesStore
@@ -23,13 +21,13 @@ import ru.yamus.app.core.util.AppScope
 import ru.yamus.app.core.util.artistText
 import ru.yamus.app.core.util.coverUrl
 import ru.yamus.app.core.util.displayTitle
-import ru.yamus.app.core.util.dp
 import ru.yamus.app.core.util.formatDuration
 import ru.yamus.app.core.util.mainAlbumId
 import ru.yamus.app.ui.common.IconView
 import ru.yamus.app.ui.common.Navigation
 import ru.yamus.app.ui.common.ThemeManager
 import ru.yamus.app.ui.common.TrackOptionsDialog
+import ru.yamus.app.ui.common.coverOptions
 import ru.yamus.app.ui.common.setCircleBackground
 
 /**
@@ -261,7 +259,7 @@ class PlayerSheet(private val activity: Activity) : PlaybackManager.Listener {
         artist.text = track.artistText()
         Glide.with(activity)
             .load(track.coverUrl(400))
-            .apply(RequestOptions.bitmapTransform(RoundedCorners(activity.dp(14))))
+            .apply(coverOptions(activity, 14))
             .into(cover)
     }
 

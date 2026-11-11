@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!--
+        Тема = цвета. Стиль = геометрия и подача (радиусы, разделители,
+        плотность списков). Стиль задаётся отдельными темами-наследниками,
+        поэтому «Android 4» одинаково работает с чёрной, тёмной и светлой
+        палитрой.
+    -->
+
     <style name="Theme.YaMus.Black" parent="Theme.AppCompat.NoActionBar">
         <item name="yamusBg">#FF000000</item>
         <item name="yamusCard">#FF111111</item>
@@ -19,6 +26,42 @@
         <item name="android:textColorHint">#FF6B7280</item>
         <item name="android:statusBarColor">#FF000000</item>
         <item name="android:navigationBarColor">#FF000000</item>
+
+        <item name="yamusCorner">16dp</item>
+        <item name="yamusCornerSmall">8dp</item>
+        <item name="yamusCornerPill">24dp</item>
+        <item name="yamusCoverCorner">6</item>
+        <item name="yamusRowPadding">8dp</item>
+        <item name="yamusRowDivider">0dp</item>
+        <item name="yamusCardMargin">8dp</item>
+        <item name="yamusElevation">2dp</item>
+        <item name="yamusCoverElevation">2dp</item>
+        <item name="yamusToolbarLine">1dp</item>
+        <item name="yamusToolbarLineColor">#FF262626</item>
+        <item name="yamusTabIndicator">2dp</item>
+        <item name="yamusBarLine">0dp</item>
+        <item name="yamusFlat">false</item>
+        <item name="yamusHeaderCaps">false</item>
+    </style>
+
+    <!-- Android 4 (Holo): прямые углы, плоские поверхности, тонкие линии,
+         плотные строки и акцентная полоса под панелью. -->
+    <style name="Theme.YaMus.Black.Holo" parent="Theme.YaMus.Black">
+        <item name="yamusCorner">0dp</item>
+        <item name="yamusCornerSmall">0dp</item>
+        <item name="yamusCornerPill">0dp</item>
+        <item name="yamusCoverCorner">0</item>
+        <item name="yamusRowPadding">6dp</item>
+        <item name="yamusRowDivider">1dp</item>
+        <item name="yamusCardMargin">0dp</item>
+        <item name="yamusElevation">0dp</item>
+        <item name="yamusCoverElevation">0dp</item>
+        <item name="yamusToolbarLine">2dp</item>
+        <item name="yamusToolbarLineColor">#FFFFCC00</item>
+        <item name="yamusTabIndicator">3dp</item>
+        <item name="yamusBarLine">1dp</item>
+        <item name="yamusFlat">true</item>
+        <item name="yamusHeaderCaps">true</item>
     </style>
 
     <style name="Theme.YaMus.Dark" parent="Theme.AppCompat.NoActionBar">
@@ -39,6 +82,40 @@
         <item name="android:textColorHint">#FF5B6B85</item>
         <item name="android:statusBarColor">#FF0B1220</item>
         <item name="android:navigationBarColor">#FF0B1220</item>
+
+        <item name="yamusCorner">16dp</item>
+        <item name="yamusCornerSmall">8dp</item>
+        <item name="yamusCornerPill">24dp</item>
+        <item name="yamusCoverCorner">6</item>
+        <item name="yamusRowPadding">8dp</item>
+        <item name="yamusRowDivider">0dp</item>
+        <item name="yamusCardMargin">8dp</item>
+        <item name="yamusElevation">2dp</item>
+        <item name="yamusCoverElevation">2dp</item>
+        <item name="yamusToolbarLine">1dp</item>
+        <item name="yamusToolbarLineColor">#FF22304A</item>
+        <item name="yamusTabIndicator">2dp</item>
+        <item name="yamusBarLine">0dp</item>
+        <item name="yamusFlat">false</item>
+        <item name="yamusHeaderCaps">false</item>
+    </style>
+
+    <style name="Theme.YaMus.Dark.Holo" parent="Theme.YaMus.Dark">
+        <item name="yamusCorner">0dp</item>
+        <item name="yamusCornerSmall">0dp</item>
+        <item name="yamusCornerPill">0dp</item>
+        <item name="yamusCoverCorner">0</item>
+        <item name="yamusRowPadding">6dp</item>
+        <item name="yamusRowDivider">1dp</item>
+        <item name="yamusCardMargin">0dp</item>
+        <item name="yamusElevation">0dp</item>
+        <item name="yamusCoverElevation">0dp</item>
+        <item name="yamusToolbarLine">2dp</item>
+        <item name="yamusToolbarLineColor">#FF3B82F6</item>
+        <item name="yamusTabIndicator">3dp</item>
+        <item name="yamusBarLine">1dp</item>
+        <item name="yamusFlat">true</item>
+        <item name="yamusHeaderCaps">true</item>
     </style>
 
     <style name="Theme.YaMus.Light" parent="Theme.AppCompat.Light.NoActionBar">
@@ -60,6 +137,40 @@
         <item name="android:statusBarColor">#FFFFFFFF</item>
         <item name="android:navigationBarColor">#FFFFFFFF</item>
         <item name="android:windowLightStatusBar">true</item>
+
+        <item name="yamusCorner">16dp</item>
+        <item name="yamusCornerSmall">8dp</item>
+        <item name="yamusCornerPill">24dp</item>
+        <item name="yamusCoverCorner">6</item>
+        <item name="yamusRowPadding">8dp</item>
+        <item name="yamusRowDivider">0dp</item>
+        <item name="yamusCardMargin">8dp</item>
+        <item name="yamusElevation">2dp</item>
+        <item name="yamusCoverElevation">2dp</item>
+        <item name="yamusToolbarLine">1dp</item>
+        <item name="yamusToolbarLineColor">#FFE5E7EB</item>
+        <item name="yamusTabIndicator">2dp</item>
+        <item name="yamusBarLine">0dp</item>
+        <item name="yamusFlat">false</item>
+        <item name="yamusHeaderCaps">false</item>
+    </style>
+
+    <style name="Theme.YaMus.Light.Holo" parent="Theme.YaMus.Light">
+        <item name="yamusCorner">0dp</item>
+        <item name="yamusCornerSmall">0dp</item>
+        <item name="yamusCornerPill">0dp</item>
+        <item name="yamusCoverCorner">0</item>
+        <item name="yamusRowPadding">6dp</item>
+        <item name="yamusRowDivider">1dp</item>
+        <item name="yamusCardMargin">0dp</item>
+        <item name="yamusElevation">0dp</item>
+        <item name="yamusCoverElevation">0dp</item>
+        <item name="yamusToolbarLine">2dp</item>
+        <item name="yamusToolbarLineColor">#FF2563EB</item>
+        <item name="yamusTabIndicator">3dp</item>
+        <item name="yamusBarLine">1dp</item>
+        <item name="yamusFlat">true</item>
+        <item name="yamusHeaderCaps">true</item>
     </style>
 
 </resources>

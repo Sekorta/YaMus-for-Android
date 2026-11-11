@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             app:cardBackgroundColor="?attr/yamusCard"
-            app:cardCornerRadius="16dp"
+            app:cardCornerRadius="?attr/yamusCorner"
             app:cardElevation="0dp">
 
             <LinearLayout
@@ -80,7 +80,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             app:cardBackgroundColor="?attr/yamusCardElevated"
-            app:cardCornerRadius="18dp"
+            app:cardCornerRadius="?attr/yamusCorner"
             app:cardElevation="0dp">
 
             <LinearLayout
@@ -123,7 +123,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     app:cardBackgroundColor="?attr/yamusAccent"
-                    app:cardCornerRadius="24dp"
+                    app:cardCornerRadius="?attr/yamusCornerPill"
                     app:cardElevation="0dp">
 
                     <!-- Ширина по тексту, но не шире карточки: на узких экранах

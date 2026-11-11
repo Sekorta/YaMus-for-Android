@@ -11,8 +11,8 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="8dp"
         app:cardBackgroundColor="?attr/yamusCard"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="6dp">
+        app:cardCornerRadius="?attr/yamusCornerSmall"
+        app:cardElevation="?attr/yamusCoverElevation">
 
         <FrameLayout
             android:layout_width="match_parent"

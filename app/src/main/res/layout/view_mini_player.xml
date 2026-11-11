@@ -4,13 +4,13 @@
     android:id="@+id/miniPlayerRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="8dp"
+    android:layout_marginLeft="?attr/yamusCardMargin"
     android:layout_marginTop="4dp"
-    android:layout_marginRight="8dp"
+    android:layout_marginRight="?attr/yamusCardMargin"
     android:layout_marginBottom="4dp"
     app:cardBackgroundColor="?attr/yamusCardElevated"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="?attr/yamusCorner"
+    app:cardElevation="?attr/yamusElevation">
 
     <LinearLayout
         android:layout_width="match_parent"

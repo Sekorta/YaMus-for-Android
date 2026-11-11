@@ -43,6 +43,9 @@
     <string name="theme_black">Чёрная</string>
     <string name="theme_dark">Тёмная (синяя)</string>
     <string name="theme_light">Светлая</string>
+    <string name="style">Стиль</string>
+    <string name="style_modern">Современный</string>
+    <string name="style_holo">Android 4</string>
     <string name="quality_max">Максимальное</string>
     <string name="quality_medium">Среднее</string>
     <string name="quality_low">Низкое</string>

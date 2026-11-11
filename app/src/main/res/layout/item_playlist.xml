@@ -4,63 +4,74 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:paddingLeft="16dp"
-    android:paddingTop="8dp"
-    android:paddingRight="12dp"
-    android:paddingBottom="8dp">
-
-    <FrameLayout
-        android:layout_width="52dp"
-        android:layout_height="52dp"
-        android:background="?attr/yamusCard">
-
-        <ru.yamus.app.ui.common.IconView
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_gravity="center"
-            app:srcCompat="@drawable/ic_playlist"
-            app:yamusTint="?attr/yamusAccent" />
-
-        <ImageView
-            android:id="@+id/playlistCover"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:contentDescription="@string/playlists"
-            android:scaleType="centerCrop" />
-    </FrameLayout>
+    android:orientation="vertical">
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="12dp"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="16dp"
+        android:paddingTop="?attr/yamusRowPadding"
+        android:paddingRight="12dp"
+        android:paddingBottom="?attr/yamusRowPadding">
 
-        <TextView
-            android:id="@+id/playlistTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="?attr/yamusText"
-            android:textSize="15sp" />
+        <FrameLayout
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:background="?attr/yamusCard">
 
-        <TextView
-            android:id="@+id/playlistMeta"
-            android:layout_width="match_parent"
+            <ru.yamus.app.ui.common.IconView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="center"
+                app:srcCompat="@drawable/ic_playlist"
+                app:yamusTint="?attr/yamusAccent" />
+
+            <ImageView
+                android:id="@+id/playlistCover"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/playlists"
+                android:scaleType="centerCrop" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="?attr/yamusTextSub"
-            android:textSize="12sp" />
+            android:layout_marginLeft="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/playlistTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="?attr/yamusText"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/playlistMeta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="?attr/yamusTextSub"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <ru.yamus.app.ui.common.IconView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            app:srcCompat="@drawable/ic_chevron_right"
+            app:yamusTint="?attr/yamusTextSub" />
     </LinearLayout>
 
-    <ru.yamus.app.ui.common.IconView
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        app:srcCompat="@drawable/ic_chevron_right"
-        app:yamusTint="?attr/yamusTextSub" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="?attr/yamusRowDivider"
+        android:background="?attr/yamusDivider" />
 </LinearLayout>

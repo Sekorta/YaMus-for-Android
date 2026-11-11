@@ -22,6 +22,7 @@ object SettingsDialog {
         val items = arrayOf(
             "${activity.getString(R.string.quality)}: ${qualityLabel(activity)}",
             "${activity.getString(R.string.theme)}: ${themeLabel(activity)}",
+            "${activity.getString(R.string.style)}: ${styleLabel(activity)}",
             "${activity.getString(R.string.clear_cache)} (${CacheManager.formatSize(CacheManager.size(activity))})",
             activity.getString(R.string.links_title),
             activity.getString(R.string.open_link_from_clipboard),
@@ -33,10 +34,11 @@ object SettingsDialog {
                 when (which) {
                     0 -> showQuality(activity)
                     1 -> showTheme(activity)
-                    2 -> clearCache(activity)
-                    3 -> LinkSettings.showMenu(activity)
-                    4 -> LinkSettings.openFromClipboard(activity)
-                    5 -> confirmLogout(activity)
+                    2 -> showStyle(activity)
+                    3 -> clearCache(activity)
+                    4 -> LinkSettings.showMenu(activity)
+                    5 -> LinkSettings.openFromClipboard(activity)
+                    6 -> confirmLogout(activity)
                 }
             }
             .setNegativeButton(R.string.cancel, null)
@@ -53,6 +55,11 @@ object SettingsDialog {
         TokenStorage.THEME_BLACK -> activity.getString(R.string.theme_black)
         TokenStorage.THEME_LIGHT -> activity.getString(R.string.theme_light)
         else -> activity.getString(R.string.theme_dark)
+    }
+
+    private fun styleLabel(activity: Activity): String = when (TokenStorage.style) {
+        TokenStorage.STYLE_HOLO -> activity.getString(R.string.style_holo)
+        else -> activity.getString(R.string.style_modern)
     }
 
     private fun showQuality(activity: Activity) {
@@ -94,6 +101,27 @@ object SettingsDialog {
             .setTitle(R.string.theme)
             .setSingleChoiceItems(labels, checked) { dialog, which ->
                 TokenStorage.theme = values[which]
+                dialog.dismiss()
+                activity.recreate()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun showStyle(activity: Activity) {
+        val values = arrayOf(
+            TokenStorage.STYLE_MODERN,
+            TokenStorage.STYLE_HOLO
+        )
+        val labels = arrayOf(
+            activity.getString(R.string.style_modern),
+            activity.getString(R.string.style_holo)
+        )
+        val checked = values.indexOf(TokenStorage.style).coerceAtLeast(0)
+        AlertDialog.Builder(activity)
+            .setTitle(R.string.style)
+            .setSingleChoiceItems(labels, checked) { dialog, which ->
+                TokenStorage.style = values[which]
                 dialog.dismiss()
                 activity.recreate()
             }

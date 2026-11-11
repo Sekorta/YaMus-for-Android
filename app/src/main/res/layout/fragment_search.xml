@@ -21,7 +21,6 @@
             android:layout_width="0dp"
             android:layout_height="46dp"
             android:layout_weight="1"
-            android:background="?attr/yamusCard"
             android:hint="@string/search_hint"
             android:imeOptions="actionSearch"
             android:inputType="text"
@@ -88,6 +87,32 @@
             android:text="@string/search_albums"
             android:textColor="?attr/yamusTextSub"
             android:textSize="14sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="?attr/yamusTabIndicator"
+        android:orientation="horizontal"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <View
+            android:id="@+id/tabTracksIndicator"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <View
+            android:id="@+id/tabArtistsIndicator"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <View
+            android:id="@+id/tabAlbumsIndicator"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
     </LinearLayout>
 
     <View

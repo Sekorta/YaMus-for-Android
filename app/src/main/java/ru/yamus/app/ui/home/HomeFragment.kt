@@ -10,7 +10,6 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import kotlinx.coroutines.launch
 import ru.yamus.app.R
 import ru.yamus.app.core.data.AccountStore
@@ -21,6 +20,7 @@ import ru.yamus.app.core.util.avatarUrl
 import ru.yamus.app.core.util.displayName
 import ru.yamus.app.core.util.displayTitle
 import ru.yamus.app.core.util.dp
+import ru.yamus.app.ui.common.avatarOptions
 import ru.yamus.app.ui.common.setCircleBackground
 
 class HomeFragment : Fragment(), PlaybackManager.Listener {
@@ -171,7 +171,7 @@ class HomeFragment : Fragment(), PlaybackManager.Listener {
                 avatar.scaleType = ImageView.ScaleType.CENTER_CROP
                 Glide.with(this@HomeFragment)
                     .load(url)
-                    .apply(RequestOptions.circleCropTransform())
+                    .apply(avatarOptions(requireContext()))
                     .into(avatar)
             }
         }

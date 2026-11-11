@@ -46,6 +46,11 @@
             app:yamusTint="?attr/yamusText" />
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="?attr/yamusToolbarLine"
+        android:background="?attr/yamusToolbarLineColor" />
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -78,5 +83,5 @@
         android:id="@+id/bottomBar"
         layout="@layout/view_bottom_bar"
         android:layout_width="match_parent"
-        android:layout_height="58dp" />
+        android:layout_height="wrap_content" />
 </LinearLayout>

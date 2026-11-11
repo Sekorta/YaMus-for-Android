@@ -30,6 +30,9 @@ import ru.yamus.app.core.data.AccountStore
 import ru.yamus.app.core.net.TlsSupport
 import ru.yamus.app.ui.common.BaseActivity
 import ru.yamus.app.ui.common.DeepLinks
+import ru.yamus.app.ui.common.ThemeManager
+import ru.yamus.app.ui.common.accentButtonBackground
+import ru.yamus.app.ui.common.setBackgroundCompat
 import ru.yamus.app.ui.main.MainActivity
 import java.util.concurrent.TimeUnit
 
@@ -97,6 +100,14 @@ class LoginActivity : BaseActivity() {
         deviceLink = findViewById(R.id.deviceLink)
         progress = findViewById(R.id.loginProgress)
         scroll = findViewById(R.id.loginScroll)
+
+        // Штатная кнопка AppCompat на старых Android серая и не следует
+        // палитре, поэтому главные действия красим в акцент темы.
+        val onAccent = ThemeManager.color(this, R.attr.yamusOnAccent)
+        for (button in arrayOf(saveToken, deviceLogin)) {
+            button.setBackgroundCompat(accentButtonBackground(this))
+            button.setTextColor(onAccent)
+        }
 
         Log.i(TAG, "TLS: ${TlsSupport.status}")
 

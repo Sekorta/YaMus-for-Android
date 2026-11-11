@@ -20,6 +20,7 @@ import ru.yamus.app.core.data.PlaylistRepository
 import ru.yamus.app.core.util.coverUrl
 import ru.yamus.app.ui.common.PlaylistAdapter
 import ru.yamus.app.ui.common.SettingsDialog
+import ru.yamus.app.ui.common.applySectionHeaderStyle
 import ru.yamus.app.ui.playlist.PlaylistActivity
 
 class MeFragment : Fragment() {
@@ -48,6 +49,7 @@ class MeFragment : Fragment() {
         list = view.findViewById(R.id.playlistsList)
         empty = view.findViewById(R.id.meEmpty)
         progress = view.findViewById(R.id.meProgress)
+        view.findViewById<TextView>(R.id.playlistsHeader).applySectionHeaderStyle()
 
         adapter = PlaylistAdapter { playlist ->
             val uid = AccountStore.uid

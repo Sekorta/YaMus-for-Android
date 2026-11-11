@@ -45,7 +45,7 @@
         android:clickable="true"
         android:focusable="true"
         app:cardBackgroundColor="?attr/yamusCard"
-        app:cardCornerRadius="12dp"
+        app:cardCornerRadius="?attr/yamusCorner"
         app:cardElevation="0dp">
 
         <LinearLayout
@@ -59,7 +59,7 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 app:cardBackgroundColor="?attr/yamusAccent"
-                app:cardCornerRadius="10dp"
+                app:cardCornerRadius="?attr/yamusCornerSmall"
                 app:cardElevation="0dp">
 
                 <ru.yamus.app.ui.common.IconView
@@ -103,6 +103,7 @@
     </androidx.cardview.widget.CardView>
 
     <TextView
+        android:id="@+id/playlistsHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"

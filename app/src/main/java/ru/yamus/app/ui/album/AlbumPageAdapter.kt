@@ -10,6 +10,7 @@ import com.bumptech.glide.Glide
 import ru.yamus.app.R
 import ru.yamus.app.core.models.Track
 import ru.yamus.app.ui.common.TrackRowBinder
+import ru.yamus.app.ui.common.applySectionHeaderStyle
 
 /**
  * Шапка альбома и его треки одним списком. Строки создаются по мере
@@ -79,7 +80,7 @@ class AlbumPageAdapter(
             TYPE_SECTION -> SectionHolder(
                 LayoutInflater.from(parent.context)
                     .inflate(R.layout.item_section_title, parent, false)
-            )
+            ).also { (it.itemView as TextView).applySectionHeaderStyle() }
             else -> TrackHolder(TrackRowBinder.inflate(parent))
         }
 

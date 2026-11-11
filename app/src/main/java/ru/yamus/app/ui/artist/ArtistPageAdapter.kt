@@ -7,12 +7,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import ru.yamus.app.R
 import ru.yamus.app.core.models.Album
 import ru.yamus.app.core.models.Track
 import ru.yamus.app.ui.common.AlbumRowBinder
 import ru.yamus.app.ui.common.TrackRowBinder
+import ru.yamus.app.ui.common.applySectionHeaderStyle
+import ru.yamus.app.ui.common.avatarOptions
 import ru.yamus.app.ui.common.setCircleBackground
 
 /**
@@ -91,7 +92,7 @@ class ArtistPageAdapter(
             TYPE_SECTION -> SectionHolder(
                 LayoutInflater.from(parent.context)
                     .inflate(R.layout.item_section_title, parent, false)
-            )
+            ).also { (it.itemView as TextView).applySectionHeaderStyle() }
             TYPE_TRACK -> TrackHolder(TrackRowBinder.inflate(parent))
             else -> AlbumHolder(AlbumRowBinder.inflate(parent))
         }
@@ -122,7 +123,7 @@ class ArtistPageAdapter(
             } else {
                 Glide.with(itemView)
                     .load(url)
-                    .apply(RequestOptions.circleCropTransform())
+                    .apply(avatarOptions(itemView.context))
                     .into(avatar)
             }
 

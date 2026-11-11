@@ -29,7 +29,8 @@
 - Плеер с уведомлением и обложкой, экран блокировки, медиа-клавиши и Bluetooth-гарнитуры.
 - Выбор качества звука, повтор трека и очереди.
 - Контекстные меню: «Следующим», «В плейлист», «Моя волна по треку», «Поделиться ссылкой».
-- Три темы: чёрная, тёмная синяя и светлая.
+- Три цветовые темы: чёрная, тёмная синяя и светлая.
+- Два стиля оформления, независимые от темы: «Современный» (скругления, карточки, воздух) и «Android 4» (прямые углы, плоские панели, плотные списки с разделителями).
 - Автоматическая очистка кэша при выходе из приложения.
 
 ## Требования
@@ -105,6 +106,7 @@ app/src/main/java/ru/yamus/app/
 - Conscrypt добавляет TLS 1.2 на Android 4.x, иначе API не отвечает.
 - Плеер — системный `MediaPlayer` в foreground-сервисе, уведомление и экран блокировки — через `MediaSessionCompat`.
 - Обложки — Glide с дисковым кэшем на 64 МБ.
+- Цвета и геометрия разделены: палитра задаётся темой, а радиусы, отступы, разделители и плотность списков — стилем через атрибуты темы.
 
 ## Приватность
 
@@ -131,7 +133,7 @@ app/src/main/java/ru/yamus/app/
 
 ## English
 
-YaMus is an unofficial Yandex Music client for Android 4+ (API 14–37), written in Kotlin with XML layouts and AppCompat. It supports OAuth login, an endless "My Wave" on rotor sessions, search, likes, playlists, artist and album pages, a notification player with media keys, three themes, audio quality selection, and automatic cache cleanup.
+YaMus is an unofficial Yandex Music client for Android 4+ (API 14–37), written in Kotlin with XML layouts and AppCompat. It supports OAuth login, an endless "My Wave" on rotor sessions, search, likes, playlists, artist and album pages, a notification player with media keys, three color themes with two independent presentation styles (modern and Android 4/Holo), audio quality selection, and automatic cache cleanup.
 
 This is vibe code: the project was written in a dialogue with AI rather than by a development team. It is small enough to read and tweak.
 

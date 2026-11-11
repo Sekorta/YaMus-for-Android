@@ -11,7 +11,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import kotlinx.coroutines.launch
 import ru.yamus.app.R
 import ru.yamus.app.core.data.ArtistContent
@@ -19,6 +18,7 @@ import ru.yamus.app.core.models.Track
 import ru.yamus.app.core.player.PlaybackManager
 import ru.yamus.app.ui.common.BaseActivity
 import ru.yamus.app.ui.common.TrackAdapter
+import ru.yamus.app.ui.common.avatarOptions
 import ru.yamus.app.ui.common.setCircleBackground
 import ru.yamus.app.ui.main.MainActivity
 
@@ -76,7 +76,7 @@ class ArtistTracksActivity : BaseActivity() {
         if (!avatarUrl.isNullOrBlank()) {
             Glide.with(this)
                 .load(avatarUrl)
-                .apply(RequestOptions.circleCropTransform())
+                .apply(avatarOptions(this))
                 .into(avatar)
         }
 
