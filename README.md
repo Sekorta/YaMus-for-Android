@@ -19,6 +19,10 @@
 |---|---|---|
 | ![Чёрная тема](docs/screenshots/theme-black.png) | ![Тёмная тема](docs/screenshots/theme-dark.png) | ![Светлая тема](docs/screenshots/theme-light.png) |
 
+| Стиль «Android 4»: главная | Стиль «Android 4»: плеер |
+|---|---|
+| ![Стиль Android 4, главная](docs/screenshots/style-android4-home.png) | ![Стиль Android 4, плеер](docs/screenshots/style-android4-player.png) |
+
 ## Возможности
 
 - Вход по OAuth-токену или по коду устройства.
