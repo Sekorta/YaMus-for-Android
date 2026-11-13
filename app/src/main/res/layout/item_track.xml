@@ -61,6 +61,25 @@
             app:srcCompat="@drawable/ic_equalizer"
             app:yamusTint="?attr/yamusAccent" />
 
+        <ru.yamus.app.ui.common.IconView
+            android:id="@+id/trackOffline"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_marginRight="4dp"
+            android:contentDescription="@string/offline_badge"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_downloaded"
+            app:yamusTint="?attr/yamusAccent" />
+
+        <TextView
+            android:id="@+id/trackFormat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="6dp"
+            android:textColor="?attr/yamusTextSub"
+            android:textSize="10sp"
+            android:visibility="gone" />
+
         <TextView
             android:id="@+id/trackDuration"
             android:layout_width="wrap_content"

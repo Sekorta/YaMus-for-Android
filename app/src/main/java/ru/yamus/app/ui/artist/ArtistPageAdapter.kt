@@ -13,8 +13,10 @@ import ru.yamus.app.core.models.Track
 import ru.yamus.app.ui.common.AlbumRowBinder
 import ru.yamus.app.ui.common.TrackRowBinder
 import ru.yamus.app.ui.common.applySectionHeaderStyle
+import ru.yamus.app.ui.common.applyTerminalTypeface
 import ru.yamus.app.ui.common.avatarOptions
 import ru.yamus.app.ui.common.setCircleBackground
+import ru.yamus.app.ui.common.setSectionHeaderText
 
 /**
  * Содержимое страницы исполнителя одним списком: шапка с аватаром,
@@ -86,6 +88,7 @@ class ArtistPageAdapter(
             TYPE_HEADER -> HeaderHolder(
                 LayoutInflater.from(parent.context)
                     .inflate(R.layout.item_artist_header, parent, false)
+                    .also { applyTerminalTypeface(it) }
             ).also { holder ->
                 holder.avatarCircle.setCircleBackground(parent.context, R.attr.yamusCard)
             }
@@ -134,7 +137,7 @@ class ArtistPageAdapter(
 
     private class SectionHolder(view: View) : RecyclerView.ViewHolder(view) {
         fun bind(titleRes: Int) {
-            (itemView as TextView).setText(titleRes)
+            (itemView as TextView).setSectionHeaderText(titleRes)
         }
     }
 

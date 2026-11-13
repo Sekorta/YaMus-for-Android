@@ -20,15 +20,26 @@ object ThemeManager {
 
     private fun holo(): Boolean = TokenStorage.style == TokenStorage.STYLE_HOLO
 
+    private fun terminal(): Boolean = TokenStorage.style == TokenStorage.STYLE_TERMINAL
+
     fun themeRes(context: Context): Int {
-        val style = holo()
+        val style = TokenStorage.style
         return when (TokenStorage.theme) {
-            TokenStorage.THEME_BLACK ->
-                if (style) R.style.Theme_YaMus_Black_Holo else R.style.Theme_YaMus_Black
-            TokenStorage.THEME_LIGHT ->
-                if (style) R.style.Theme_YaMus_Light_Holo else R.style.Theme_YaMus_Light
-            else ->
-                if (style) R.style.Theme_YaMus_Dark_Holo else R.style.Theme_YaMus_Dark
+            TokenStorage.THEME_BLACK -> when (style) {
+                TokenStorage.STYLE_HOLO -> R.style.Theme_YaMus_Black_Holo
+                TokenStorage.STYLE_TERMINAL -> R.style.Theme_YaMus_Black_Terminal
+                else -> R.style.Theme_YaMus_Black
+            }
+            TokenStorage.THEME_LIGHT -> when (style) {
+                TokenStorage.STYLE_HOLO -> R.style.Theme_YaMus_Light_Holo
+                TokenStorage.STYLE_TERMINAL -> R.style.Theme_YaMus_Light_Terminal
+                else -> R.style.Theme_YaMus_Light
+            }
+            else -> when (style) {
+                TokenStorage.STYLE_HOLO -> R.style.Theme_YaMus_Dark_Holo
+                TokenStorage.STYLE_TERMINAL -> R.style.Theme_YaMus_Dark_Terminal
+                else -> R.style.Theme_YaMus_Dark
+            }
         }
     }
 
@@ -44,8 +55,11 @@ object ThemeManager {
         activity.setTheme(theme)
     }
 
-    /** Стиль Android 4: прямые углы, плоские панели, плотные списки. */
-    fun isFlat(context: Context): Boolean = holo()
+    /** Плоский стиль: прямые углы, без теней (Android 4 и терминал). */
+    fun isFlat(context: Context): Boolean = holo() || terminal()
+
+    /** Псевдотерминал: моноширинный шрифт, приглашение, рамки. */
+    fun isTerminal(context: Context): Boolean = terminal()
 
     fun color(context: Context, attr: Int): Int {
         synchronized(colors) { colors[attr]?.let { return it } }

@@ -34,13 +34,14 @@ object Navigation {
             artists.size == 1 -> openArtist(context, artists[0].id, artists[0].name)
             else -> {
                 val names = artists.map { it.name ?: "Исполнитель" }.toTypedArray()
-                AlertDialog.Builder(context)
+                val dialog = AlertDialog.Builder(context)
                     .setTitle(R.string.choose_artist)
                     .setItems(names) { _, which ->
                         val artist = artists.getOrNull(which) ?: return@setItems
                         openArtist(context, artist.id, artist.name)
                     }
                     .show()
+                styleTerminalDialog(dialog)
             }
         }
     }

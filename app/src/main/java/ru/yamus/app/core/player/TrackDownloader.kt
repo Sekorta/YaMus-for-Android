@@ -5,9 +5,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.yamus.app.core.auth.TokenStorage
 import java.io.File
-import java.io.FileOutputStream
-import java.net.HttpURLConnection
-import java.net.URL
 
 /**
  * Скачивает трек в кэш и расшифровывает его.
@@ -77,57 +74,7 @@ object TrackDownloader {
         } catch (_: Exception) {
         }
         try {
-            val connection = (URL(source.url).openConnection() as HttpURLConnection).apply {
-                connectTimeout = 20000
-                readTimeout = 30000
-                instanceFollowRedirects = true
-                setRequestProperty("User-Agent", "Mozilla/5.0")
-                setRequestProperty("Accept", "*/*")
-            }
-            if (connection.responseCode != HttpURLConnection.HTTP_OK) {
-                connection.disconnect()
-                return null
-            }
-
-            val cipher = source.keyHex
-                ?.takeIf { it.isNotBlank() }
-                ?.let { StreamProxy.createCipher(it, 0L) }
-
-            connection.inputStream.use { input ->
-                FileOutputStream(temp).use { output ->
-                    val buffer = ByteArray(64 * 1024)
-                    // Расшифровка в переиспользуемый буфер: на Android 4.x
-                    // каждый cipher.update() с массивом создаёт мусор, из-за
-                    // которого GC подтормаживает интерфейс во время загрузки.
-                    val plain = if (cipher != null) ByteArray(64 * 1024 + 32) else null
-                    var useOffsetUpdate = cipher != null
-                    while (true) {
-                        val read = input.read(buffer)
-                        if (read <= 0) break
-                        if (cipher == null || plain == null) {
-                            output.write(buffer, 0, read)
-                            continue
-                        }
-                        if (useOffsetUpdate) {
-                            val count = try {
-                                cipher.update(buffer, 0, read, plain, 0)
-                            } catch (_: Exception) {
-                                useOffsetUpdate = false
-                                -1
-                            }
-                            if (useOffsetUpdate) {
-                                if (count > 0) output.write(plain, 0, count)
-                                continue
-                            }
-                        }
-                        val data = cipher.update(buffer, 0, read) ?: continue
-                        if (data.isNotEmpty()) output.write(data)
-                    }
-                }
-            }
-            connection.disconnect()
-
-            if (temp.length() <= 0) {
+            if (AudioFetcher.fetch(source, temp) <= 0) {
                 temp.delete()
                 return null
             }

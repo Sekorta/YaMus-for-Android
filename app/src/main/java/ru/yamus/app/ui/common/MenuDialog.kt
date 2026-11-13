@@ -87,6 +87,7 @@ object MenuDialog {
             .setView(scroll)
             .setNegativeButton(R.string.cancel, null)
             .show()
+        styleTerminalDialog(dialog)
     }
 
     /** Системный фон нажатия из темы, чтобы строки «отзывались» на касание. */

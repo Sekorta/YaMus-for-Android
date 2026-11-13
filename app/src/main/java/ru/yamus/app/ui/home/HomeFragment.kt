@@ -20,7 +20,13 @@ import ru.yamus.app.core.util.avatarUrl
 import ru.yamus.app.core.util.displayName
 import ru.yamus.app.core.util.displayTitle
 import ru.yamus.app.core.util.dp
+import ru.yamus.app.ui.common.ThemeManager
+import ru.yamus.app.ui.common.accentButtonBackground
+import ru.yamus.app.ui.common.accentButtonTextColors
+import ru.yamus.app.ui.common.applyTerminalTypeface
 import ru.yamus.app.ui.common.avatarOptions
+import ru.yamus.app.ui.common.bindTerminalPrompt
+import ru.yamus.app.ui.common.setBackgroundCompat
 import ru.yamus.app.ui.common.setCircleBackground
 
 class HomeFragment : Fragment(), PlaybackManager.Listener {
@@ -53,6 +59,18 @@ class HomeFragment : Fragment(), PlaybackManager.Listener {
         waveSeedBox = view.findViewById(R.id.waveSeedBox)
         waveSeedText = view.findViewById(R.id.waveSeedText)
         waveNormalButton = view.findViewById(R.id.waveNormalButton)
+
+        applyTerminalTypeface(view)
+        bindTerminalPrompt(
+            view.findViewById(R.id.terminalPrompt),
+            view.findViewById(R.id.terminalPromptText),
+            R.string.terminal_prompt_home
+        )
+        if (ThemeManager.isTerminal(requireContext())) {
+            // В терминале кнопка волны контурная, а не залитая акцентом.
+            waveButton.setBackgroundCompat(accentButtonBackground(requireContext()))
+            waveButtonText.setTextColor(accentButtonTextColors(requireContext()))
+        }
 
         waveButton.setOnClickListener {
             if (PlaybackManager.waveActive) {

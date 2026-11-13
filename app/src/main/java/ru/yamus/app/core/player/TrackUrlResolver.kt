@@ -27,20 +27,36 @@ object TrackUrlResolver {
 
     private data class Attempt(val quality: String, val codecs: List<String>)
 
-    private val maxAttempts = listOf(
-        Attempt("lossless", listOf("flac")),
-        Attempt("hq", listOf("aac")),
-        Attempt("nq", listOf("mp3", "aac", "he-aac"))
+    /**
+     * Яндекс отдаёт lossless не только как raw FLAC, но и как FLAC в MP4
+     * (`flac-mp4`). Если запросить только `flac`, сервер без Plus/при
+     * отсутствии raw-версии молча возвращает MP3. Поэтому просим оба
+     * варианта: при наличии raw FLAC сервер выберет его, иначе — MP4.
+     *
+     * На старых Android FLAC в MP4 может не проигрываться, поэтому там
+     * ограничиваемся raw FLAC и обычными кодеками.
+     */
+    private fun losslessCodecs(): List<String> =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            listOf("flac", "flac-mp4")
+        } else {
+            listOf("flac")
+        }
+
+    private fun maxAttempts(): List<Attempt> = listOf(
+        Attempt("lossless", losslessCodecs()),
+        Attempt("hq", listOf("aac", "aac-mp4", "he-aac-mp4")),
+        Attempt("nq", listOf("mp3", "aac", "aac-mp4", "he-aac", "he-aac-mp4"))
     )
 
     private val mediumAttempts = listOf(
-        Attempt("nq", listOf("mp3", "aac", "he-aac")),
-        Attempt("lq", listOf("he-aac", "aac"))
+        Attempt("nq", listOf("mp3", "aac", "aac-mp4", "he-aac", "he-aac-mp4")),
+        Attempt("lq", listOf("he-aac", "he-aac-mp4", "aac", "aac-mp4"))
     )
 
     private val lowAttempts = listOf(
-        Attempt("lq", listOf("he-aac", "aac")),
-        Attempt("nq", listOf("mp3", "aac", "he-aac"))
+        Attempt("lq", listOf("he-aac", "he-aac-mp4", "aac", "aac-mp4")),
+        Attempt("nq", listOf("mp3", "aac", "aac-mp4", "he-aac", "he-aac-mp4"))
     )
 
     suspend fun resolve(track: Track): StreamProxy.Source? = withContext(Dispatchers.IO) {
@@ -50,7 +66,7 @@ object TrackUrlResolver {
         val attempts = when (TokenStorage.quality) {
             TokenStorage.QUALITY_LOW -> lowAttempts
             TokenStorage.QUALITY_MEDIUM -> mediumAttempts
-            else -> maxAttempts
+            else -> maxAttempts()
         }
 
         // На старых Android FLAC/AAC в контейнерах может не проигрываться,
@@ -112,7 +128,8 @@ object TrackUrlResolver {
                 StreamProxy.Source(
                     url = link,
                     keyHex = key,
-                    contentType = contentType(info.codec)
+                    contentType = contentType(info.codec),
+                    codec = info.codec.orEmpty()
                 )
             }
         } catch (_: Exception) {
@@ -123,9 +140,12 @@ object TrackUrlResolver {
     private fun contentType(codec: String?): String {
         val value = codec.orEmpty().lowercase()
         return when {
+            // flac-mp4 — это FLAC в MP4-контейнере, а не raw FLAC.
+            value.contains("flac-mp4") -> "audio/mp4"
+            value.contains("aac-mp4") || value.contains("he-aac-mp4") -> "audio/mp4"
             value.contains("flac") -> "audio/flac"
-            value.contains("mp4") -> "audio/mp4"
             value == "aac" || value == "he-aac" -> "audio/aac"
+            value.contains("mp4") -> "audio/mp4"
             else -> "audio/mpeg"
         }
     }

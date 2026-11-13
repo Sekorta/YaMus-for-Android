@@ -11,17 +11,21 @@
 
 ## Скриншоты
 
-| Главная | Плеер |
-|---|---|
-| ![Главная](docs/screenshots/home.png) | ![Плеер](docs/screenshots/player.png) |
+| Главная | Я | Плеер |
+|---|---|---|
+| ![Главная](docs/screenshots/home.jpg) | ![Я](docs/screenshots/me.jpg) | ![Плеер](docs/screenshots/player.jpg) |
 
 | Чёрная тема | Тёмная тема | Светлая тема |
 |---|---|---|
-| ![Чёрная тема](docs/screenshots/theme-black.png) | ![Тёмная тема](docs/screenshots/theme-dark.png) | ![Светлая тема](docs/screenshots/theme-light.png) |
+| ![Чёрная тема](docs/screenshots/theme-black.jpg) | ![Тёмная тема](docs/screenshots/theme-dark.jpg) | ![Светлая тема](docs/screenshots/theme-light.jpg) |
 
-| Стиль «Android 4»: главная | Стиль «Android 4»: плеер |
+| Стиль «Holo»: главная | Стиль «Holo»: плеер |
 |---|---|
-| ![Стиль Android 4, главная](docs/screenshots/style-android4-home.png) | ![Стиль Android 4, плеер](docs/screenshots/style-android4-player.png) |
+| ![Стиль Holo, главная](docs/screenshots/style-android4-home.jpg) | ![Стиль Holo, плеер](docs/screenshots/style-android4-player.jpg) |
+
+| Стиль «Терминал»: главная | Стиль «Терминал»: плеер |
+|---|---|
+| ![Стиль Терминал, главная](docs/screenshots/style-terminal-home.jpg) | ![Стиль Терминал, плеер](docs/screenshots/style-terminal-player.jpg) |
 
 ## Возможности
 
@@ -32,10 +36,16 @@
 - «Мне нравится», «Мне не нравится», плейлисты, страницы альбомов и артистов.
 - Плеер с уведомлением и обложкой, экран блокировки, медиа-клавиши и Bluetooth-гарнитуры.
 - Выбор качества звука, повтор трека и очереди.
-- Контекстные меню: «Следующим», «В плейлист», «Моя волна по треку», «Поделиться ссылкой».
+- Контекстные меню: «Следующим», «В плейлист», «Моя волна по треку», «Скачать», «Удалить скачанное», «Поделиться ссылкой».
+- Офлайн-библиотека: скачанные треки лежат в `Music/YaMus Library` (на Android 10+; на старых версиях — в `YaMus Library` в корне накопителя), доступны без сети и переживают очистку кэша, выход из аккаунта, удаление и переустановку приложения. Встроенные обложки хранятся вне кэша и не пропадают после перезапуска; при удалении трека пустые папки артиста и альбома тоже убираются.
+- Скачивание встроено в списки и плеер: значок и формат файла (`MP3`, `FLAC`, `M4A`, `AAC`, `OGG`) видны у каждой строки, а в теги записываются название, артист, альбом, год, номер трека, жанр, ссылка на трек и встроенная обложка.
+- Lossless сохраняется как lossless: если Яндекс отдаёт `flac` или `flac-mp4` (FLAC в контейнере MP4), файл скачивается без перекодирования. `flac-mp4` пересобирается в обычный FLAC (`.flac`) с пометкой `FLAC` в списках, плеере и «Скачанных треках», поэтому файл открывается любым плеером. MP3 320 используется, только если сервер не отдал lossless-поток.
+- Автозагрузка прослушанных треков (по умолчанию выключена) с режимами «только по Wi-Fi» и «только из „Мне нравится“».
+- Раздел «Скачанные треки» на вкладке «Я» и вход в офлайн-библиотеку прямо с экрана входа («Слушать скачанное»). Присутствует сортировка: по артисту, названию, дате добавления, размеру и длительности.
+- Ссылка на трек внутри альбома не только открывает альбом, но и подсвечивает нужную строку акцентной рамкой и прокручивает к ней список.
 - Три цветовые темы: чёрная, тёмная синяя и светлая.
-- Два стиля оформления, независимые от темы: «Современный» (скругления, карточки, воздух) и «Android 4» (прямые углы, плоские панели, плотные списки с разделителями).
-- Автоматическая очистка кэша при выходе из приложения.
+- Три стиля оформления, независимые от темы: «Material You» (скругления, карточки, воздух), «Holo» (прямые углы, плоские панели, плотные списки с разделителями) и «Терминал» (моноширинный шрифт, контурные элементы, приглашение командной строки с мигающим курсором).
+- Настраиваемая автоматическая очистка кэша при выходе из приложения; скачанная библиотека при этом не затрагивается.
 
 ## Требования
 
@@ -97,6 +107,7 @@ app/src/main/java/ru/yamus/app/
 ├── core/api        Retrofit-клиент и эндпоинты
 ├── core/auth       OAuth и хранение токена
 ├── core/data       лайки, дизлайки, история волны
+├── core/download   офлайн-библиотека, теги и обложки
 ├── core/models     модели ответов API
 ├── core/net        TLS для Android 4+
 ├── core/player     MediaPlayer, сервис, кэш треков, волна
@@ -110,20 +121,27 @@ app/src/main/java/ru/yamus/app/
 - Conscrypt добавляет TLS 1.2 на Android 4.x, иначе API не отвечает.
 - Плеер — системный `MediaPlayer` в foreground-сервисе, уведомление и экран блокировки — через `MediaSessionCompat`.
 - Обложки — Glide с дисковым кэшем на 64 МБ.
+- Офлайн-библиотека пишется через `MediaStore` на Android 10+ и напрямую в файлы на старых версиях; после переустановки индекс восстанавливается по файлам и тегам. FLAC-in-MP4 пересобирается в нативный FLAC (`flac-mp4` → `.flac`) до записи тегов, поэтому формат остаётся `FLAC` и при пересканировании.
+- Теги и встроенные обложки для MP3, FLAC и OGG записывает jaudiotagger, для MP4/M4A — собственный `Mp4Tagger`, который меняет только `moov` и не перепаковывает аудиоданные. Если тег записать не удалось, аудиофайл всё равно сохраняется.
+- Мини-плеер сначала показывает сетевую обложку, а для скачанного трека подменяет её встроенной из файла, как только библиотека извлечёт её из тега.
 - Цвета и геометрия разделены: палитра задаётся темой, а радиусы, отступы, разделители и плотность списков — стилем через атрибуты темы.
 
 ## Приватность
 
 - Токен хранится в приватных `SharedPreferences` и передаётся только на `api.music.yandex.net`.
 - Нет аналитики, рекламы и сторонних трекеров.
-- Кэш очищается при выходе, если музыка не играет; после принудительного закрытия — при следующем запуске.
+- Если включена автоочистка, кэш очищается при выходе, если музыка не играет; после принудительного закрытия — при следующем запуске. Автоочистку можно выключить в настройках.
+- Скачанные треки лежат отдельно от кэша, в общей папке `Music/YaMus Library`, и доступны другим плеерам. Очистка кэша, выход из аккаунта, удаление и переустановка приложения их не удаляют.
 - История волны хранится локально (150 треков) и чистится при выходе из аккаунта.
 
 ## Ограничения
 
 - API неофициальный и может измениться в любой момент.
 - Интерфейс только на русском, отдельной вёрстки для планшетов нет.
-- Постоянного офлайн-режима нет: кэш временный.
+- Формат скачанного файла соответствует потоку, который отдаёт API для выбранного качества: переключение качества не перекодирует уже скачанное.
+- На Android 4–9 (`API < 29`) запрашивается только `flac`, без `flac-mp4`: FLAC в MP4-контейнере может не проигрываться системным `MediaPlayer`, поэтому при недоступности обычного FLAC остаётся MP3 320.
+- На Android 13+ для поиска скачанных треков после переустановки нужно разрешение на доступ к аудио; на Android 10+ файлы лежат в `Music/YaMus Library`.
+- Скачивать можно только треки, доступные аккаунту для прослушивания.
 
 ## Дисклеймер
 
@@ -137,7 +155,9 @@ app/src/main/java/ru/yamus/app/
 
 ## English
 
-YaMus is an unofficial Yandex Music client for Android 4+ (API 14–37), written in Kotlin with XML layouts and AppCompat. It supports OAuth login, an endless "My Wave" on rotor sessions, search, likes, playlists, artist and album pages, a notification player with media keys, three color themes with two independent presentation styles (modern and Android 4/Holo), audio quality selection, and automatic cache cleanup.
+YaMus is an unofficial Yandex Music client for Android 4+ (API 14–37), written in Kotlin with XML layouts and AppCompat. It supports OAuth login, an endless "My Wave" on rotor sessions, search, likes, playlists, artist and album pages, a notification player with media keys, three color themes with three independent presentation styles (Material You, Holo and terminal), audio quality selection, and automatic cache cleanup.
+
+It also has a real offline library. Downloaded tracks are written to `Music/YaMus Library` (Android 10+; the storage root on older versions) as ordinary audio files with full tags and embedded covers, so they survive cache clearing, logout, uninstall and reinstall. Lossless streams from Yandex (`flac` and `flac-mp4`) are saved as-is: FLAC-in-MP4 is demuxed into a native `.flac` file, so it stays lossless and plays in any player, and is labelled `FLAC` in lists, the player and the downloads screen. Downloads and their audio format are shown in track lists and the player; auto-download can be limited to Wi-Fi and to tracks started from "Liked tracks", and the Me tab has a "Downloaded tracks" section with its own mini player, bottom navigation and sorting (artist, title, newest, size, duration). Embedded covers are kept outside the cache, so they survive restarts and cache cleanup, and deleting a track also removes now-empty artist and album folders. Playback can start offline straight from the login screen. The settings page controls auto-download, Wi-Fi-only mode and cache cleanup, and album links open the album with the linked track outlined and scrolled into view.
 
 This is vibe code: the project was written in a dialogue with AI rather than by a development team. It is small enough to read and tweak.
 

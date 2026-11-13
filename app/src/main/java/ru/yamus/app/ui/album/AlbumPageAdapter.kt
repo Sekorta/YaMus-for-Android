@@ -11,6 +11,8 @@ import ru.yamus.app.R
 import ru.yamus.app.core.models.Track
 import ru.yamus.app.ui.common.TrackRowBinder
 import ru.yamus.app.ui.common.applySectionHeaderStyle
+import ru.yamus.app.ui.common.applyTerminalTypeface
+import ru.yamus.app.ui.common.setSectionHeaderText
 
 /**
  * Шапка альбома и его треки одним списком. Строки создаются по мере
@@ -34,6 +36,9 @@ class AlbumPageAdapter(
 
     private val items = ArrayList<Item>()
 
+    /** Трек, к которому ведёт ссылка: рисуем акцентную рамку. */
+    private var highlightedId: String? = null
+
     fun renderHeader(
         coverUrl: String?,
         title: CharSequence,
@@ -49,7 +54,8 @@ class AlbumPageAdapter(
         }
     }
 
-    fun renderTracks(tracks: List<Track>) {
+    fun renderTracks(tracks: List<Track>, highlightedTrackId: String? = null) {
+        highlightedId = highlightedTrackId
         val header = items.firstOrNull { it is Item.Header }
             ?: Item.Header(null, "", "", "")
         items.clear()
@@ -61,6 +67,20 @@ class AlbumPageAdapter(
             }
         }
         notifyDataSetChanged()
+    }
+
+    /** Позиция трека в общем списке (шапка + заголовок раздела + треки). */
+    fun positionOfTrack(trackId: String): Int {
+        for (index in items.indices) {
+            val item = items[index]
+            if (item is Item.TrackItem && sameTrack(item.track.id, trackId)) return index
+        }
+        return -1
+    }
+
+    private fun sameTrack(actual: String, expected: String): Boolean {
+        if (actual == expected) return true
+        return actual.substringBefore(':') == expected.substringBefore(':')
     }
 
     override fun getItemCount(): Int = items.size
@@ -76,6 +96,7 @@ class AlbumPageAdapter(
             TYPE_HEADER -> HeaderHolder(
                 LayoutInflater.from(parent.context)
                     .inflate(R.layout.item_album_header, parent, false)
+                    .also { applyTerminalTypeface(it) }
             )
             TYPE_SECTION -> SectionHolder(
                 LayoutInflater.from(parent.context)
@@ -115,13 +136,17 @@ class AlbumPageAdapter(
 
     private class SectionHolder(view: View) : RecyclerView.ViewHolder(view) {
         fun bind(titleRes: Int) {
-            (itemView as TextView).setText(titleRes)
+            (itemView as TextView).setSectionHeaderText(titleRes)
         }
     }
 
     private inner class TrackHolder(view: View) : RecyclerView.ViewHolder(view) {
         fun bind(item: Item.TrackItem) {
-            TrackRowBinder.bind(itemView, item.track) { onPlayTrack(item.index) }
+            TrackRowBinder.bind(
+                itemView,
+                item.track,
+                highlight = highlightedId != null && sameTrack(item.track.id, highlightedId!!)
+            ) { onPlayTrack(item.index) }
         }
     }
 

@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import ru.yamus.app.R
 import ru.yamus.app.core.data.DislikesStore
 import ru.yamus.app.core.data.LikesStore
+import ru.yamus.app.core.download.OfflineLibrary
 import ru.yamus.app.core.player.PlaybackManager
 import ru.yamus.app.core.util.AppScope
 import ru.yamus.app.core.util.artistText
@@ -24,6 +25,7 @@ import ru.yamus.app.core.util.displayTitle
 import ru.yamus.app.core.util.formatDuration
 import ru.yamus.app.core.util.mainAlbumId
 import ru.yamus.app.ui.common.IconView
+import ru.yamus.app.ui.common.applyTerminalTypeface
 import ru.yamus.app.ui.common.Navigation
 import ru.yamus.app.ui.common.ThemeManager
 import ru.yamus.app.ui.common.TrackOptionsDialog
@@ -34,7 +36,8 @@ import ru.yamus.app.ui.common.setCircleBackground
  * Полноэкранный плеер, который выезжает снизу поверх текущего экрана.
  * Один и тот же оверлей используется и на главной, и на вторичных страницах.
  */
-class PlayerSheet(private val activity: Activity) : PlaybackManager.Listener {
+class PlayerSheet(private val activity: Activity) :
+    PlaybackManager.Listener, OfflineLibrary.Listener {
 
     private val root: View
     private val panel: View
@@ -43,6 +46,8 @@ class PlayerSheet(private val activity: Activity) : PlaybackManager.Listener {
     private val cover: ImageView
     private val title: TextView
     private val artist: TextView
+    private val offlineBadge: View
+    private val formatLabel: TextView
     private val seekBar: SeekBar
     private val currentTime: TextView
     private val totalTime: TextView
@@ -76,6 +81,12 @@ class PlayerSheet(private val activity: Activity) : PlaybackManager.Listener {
         val content = activity.findViewById<ViewGroup>(android.R.id.content)
         root = LayoutInflater.from(activity)
             .inflate(R.layout.view_player_sheet, content, false)
+        applyTerminalTypeface(root)
+        if (ThemeManager.isTerminal(activity)) {
+            // Заголовок плеера — как строка вывода консоли.
+            root.findViewById<TextView>(R.id.playerHeader).text =
+                "> " + activity.getString(R.string.now_playing).uppercase()
+        }
         content.addView(root)
 
         panel = root.findViewById(R.id.playerSheetPanel)
@@ -83,6 +94,8 @@ class PlayerSheet(private val activity: Activity) : PlaybackManager.Listener {
         cover = root.findViewById(R.id.cover)
         title = root.findViewById(R.id.title)
         artist = root.findViewById(R.id.artist)
+        offlineBadge = root.findViewById(R.id.offlineBadge)
+        formatLabel = root.findViewById(R.id.formatLabel)
         seekBar = root.findViewById(R.id.seekBar)
         currentTime = root.findViewById(R.id.currentTime)
         totalTime = root.findViewById(R.id.totalTime)
@@ -152,6 +165,7 @@ class PlayerSheet(private val activity: Activity) : PlaybackManager.Listener {
         PlaybackManager.addListener(this)
         LikesStore.addListener(likesListener)
         DislikesStore.addListener(dislikesListener)
+        OfflineLibrary.addListener(this)
         if (isOpen) {
             // Пока приложение было в фоне, трек мог смениться несколько раз:
             // слушатели в этот момент отключены, поэтому после возврата
@@ -167,6 +181,7 @@ class PlayerSheet(private val activity: Activity) : PlaybackManager.Listener {
         PlaybackManager.removeListener(this)
         LikesStore.removeListener(likesListener)
         DislikesStore.removeListener(dislikesListener)
+        OfflineLibrary.removeListener(this)
         stopTicker()
     }
 
@@ -184,11 +199,21 @@ class PlayerSheet(private val activity: Activity) : PlaybackManager.Listener {
         bindTrack()
         updateButtons()
         updateProgress()
-        root.visibility = View.VISIBLE
+        // Плеер должен появиться уже сдвинутым за нижний край: иначе первый
+        // кадр успевает показать полностью открытую панель, и анимация
+        // выглядит как повторное открытие. Высоту берём у контейнера:
+        // сама панель ещё не измерена, пока root скрыт.
+        val height = ((root.parent as? View)?.height ?: root.height)
+            .takeIf { it > 0 }
+            ?.toFloat()
+            ?: activity.resources.displayMetrics.heightPixels.toFloat()
+        panel.animate().cancel()
+        panel.animate().setListener(null)
+        panel.translationY = height
         scrim.alpha = 0f
+        root.visibility = View.VISIBLE
         panel.post {
             if (!isOpen) return@post
-            panel.translationY = panel.height.toFloat()
             panel.animate().translationY(0f).setDuration(260L).start()
             scrim.animate().alpha(1f).setDuration(260L).start()
         }
@@ -226,6 +251,14 @@ class PlayerSheet(private val activity: Activity) : PlaybackManager.Listener {
         activity.runOnUiThread { refresh() }
     }
 
+    /** Скачали текущий трек или удалили его — обновляем пометку и обложку. */
+    override fun onLibraryChanged() {
+        activity.runOnUiThread {
+            boundTrackId = null
+            if (isOpen) bindTrack()
+        }
+    }
+
     /** Синхронизирует открытый плеер с текущим состоянием [PlaybackManager]. */
     private fun refresh() {
         if (!isOpen) return
@@ -257,8 +290,18 @@ class PlayerSheet(private val activity: Activity) : PlaybackManager.Listener {
         boundTrackId = track.id
         title.text = track.displayTitle()
         artist.text = track.artistText()
+
+        // У скачанного трека показываем формат файла — так видно, что
+        // играет именно сохранённая копия, а не поток.
+        val format = OfflineLibrary.formatOf(track)
+        offlineBadge.visibility = if (format != null) View.VISIBLE else View.GONE
+        formatLabel.text = format.orEmpty()
+
+        // Обложка из тегов файла точнее сетевой (её сохранили вместе с
+        // треком). Пока она извлекается, грузим сетевую.
+        val embeddedCover = OfflineLibrary.coverModel(activity, track)
         Glide.with(activity)
-            .load(track.coverUrl(400))
+            .load(embeddedCover ?: track.coverUrl(400))
             .apply(coverOptions(activity, 14))
             .into(cover)
     }

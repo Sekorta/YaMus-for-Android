@@ -1,10 +1,12 @@
 package ru.yamus.app.ui.common
 
+import android.app.Activity
 import android.content.Context
 import kotlinx.coroutines.launch
 import ru.yamus.app.R
 import ru.yamus.app.core.data.DislikesStore
 import ru.yamus.app.core.data.LikesStore
+import ru.yamus.app.core.download.OfflineLibrary
 import ru.yamus.app.core.models.Track
 import ru.yamus.app.core.player.PlaybackManager
 import ru.yamus.app.core.player.WaveController
@@ -52,7 +54,10 @@ object TrackOptionsDialog {
             )
         )
 
-        // 2. Действия с очередью воспроизведения.
+        // 2. Офлайн-библиотека: скачать или удалить файл с телефона.
+        groups.add(offlineItems(context, track))
+
+        // 3. Действия с очередью воспроизведения.
         groups.add(
             listOf(
                 MenuDialog.Item(context.getString(R.string.track_play_next)) {
@@ -98,5 +103,53 @@ object TrackOptionsDialog {
         groups.add(navigation)
 
         MenuDialog.show(context, track.displayTitle(), groups)
+    }
+
+    private fun offlineItems(context: Context, track: Track): List<MenuDialog.Item> {
+        val entry = OfflineLibrary.find(track)
+        if (entry != null) {
+            return listOf(
+                MenuDialog.Item(context.getString(R.string.delete_download)) {
+                    OfflineLibrary.removeEntry(context, entry)
+                    PlaybackManager.toast(context.getString(R.string.download_deleted))
+                }
+            )
+        }
+        return when (OfflineLibrary.stateOf(track)) {
+            OfflineLibrary.State.DOWNLOADING,
+            OfflineLibrary.State.QUEUED -> listOf(
+                MenuDialog.Item(context.getString(R.string.downloading)) {
+                    PlaybackManager.toast(context.getString(R.string.downloading))
+                }
+            )
+            OfflineLibrary.State.FAILED -> listOf(
+                MenuDialog.Item(
+                    context.getString(R.string.download_failed) + " · " +
+                        context.getString(R.string.track_retry_download)
+                ) {
+                    startDownload(context, track)
+                }
+            )
+            else -> listOf(
+                MenuDialog.Item(context.getString(R.string.download_track)) {
+                    startDownload(context, track)
+                }
+            )
+        }
+    }
+
+    private fun startDownload(context: Context, track: Track) {
+        val activity = context as? Activity
+        if (activity != null && OfflineLibrary.needsWritePermission(activity)) {
+            StoragePermission.ensureWrite(activity) {
+                if (OfflineLibrary.downloadNow(activity, track)) {
+                    PlaybackManager.toast(activity.getString(R.string.download_started))
+                }
+            }
+            return
+        }
+        if (OfflineLibrary.downloadNow(context, track)) {
+            PlaybackManager.toast(context.getString(R.string.download_started))
+        }
     }
 }

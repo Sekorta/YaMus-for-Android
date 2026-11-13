@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/yamusBg"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp">
+
+        <ru.yamus.app.ui.common.IconView
+            android:id="@+id/backButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackground"
+            android:padding="12dp"
+            app:srcCompat="@drawable/ic_back"
+            app:yamusTint="?attr/yamusText" />
+
+        <TextView
+            android:id="@+id/toolbarTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/downloads_title"
+            android:textColor="?attr/yamusText"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <ru.yamus.app.ui.common.IconView
+            android:id="@+id/moreButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/more_options"
+            android:padding="13dp"
+            app:srcCompat="@drawable/ic_more"
+            app:yamusTint="?attr/yamusText" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:paddingTop="2dp"
+        android:paddingRight="20dp"
+        android:paddingBottom="10dp">
+
+        <TextView
+            android:id="@+id/summary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="?attr/yamusTextSub"
+            android:textSize="12sp" />
+
+        <ru.yamus.app.ui.common.IconView
+            android:id="@+id/sortButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/sort"
+            android:padding="9dp"
+            app:srcCompat="@drawable/ic_sort"
+            app:yamusTint="?attr/yamusTextSub" />
+
+        <ru.yamus.app.ui.common.IconView
+            android:id="@+id/playAllButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/downloads_play_all"
+            android:padding="9dp"
+            app:srcCompat="@drawable/ic_play"
+            app:yamusTint="?attr/yamusAccent" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/permissionPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginBottom="8dp"
+        android:background="?attr/yamusCard"
+        android:orientation="vertical"
+        android:padding="14dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/permissionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/downloads_permission"
+            android:textColor="?attr/yamusText"
+            android:textSize="13sp" />
+
+        <Button
+            android:id="@+id/permissionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="8dp"
+            android:background="?attr/selectableItemBackground"
+            android:minHeight="36dp"
+            android:paddingLeft="14dp"
+            android:paddingRight="14dp"
+            android:text="@string/grant"
+            android:textColor="?attr/yamusAccent"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/downloadsList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="12dp" />
+
+        <LinearLayout
+            android:id="@+id/emptyPanel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingLeft="32dp"
+            android:paddingTop="48dp"
+            android:paddingRight="32dp"
+            android:paddingBottom="32dp"
+            android:visibility="gone">
+
+            <ru.yamus.app.ui.common.IconView
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:alpha="0.7"
+                app:srcCompat="@drawable/ic_downloaded"
+                app:yamusTint="?attr/yamusTextSub" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="@string/downloads_empty"
+                android:textColor="?attr/yamusText"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:lineSpacingExtra="2dp"
+                android:text="@string/downloads_empty_hint"
+                android:textColor="?attr/yamusTextSub"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <include
+        android:id="@+id/miniPlayer"
+        layout="@layout/view_mini_player"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/bottomBar"
+        layout="@layout/view_bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</LinearLayout>

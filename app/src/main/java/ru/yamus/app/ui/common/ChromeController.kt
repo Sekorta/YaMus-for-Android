@@ -8,11 +8,13 @@ import com.bumptech.glide.Glide
 import kotlinx.coroutines.launch
 import ru.yamus.app.R
 import ru.yamus.app.core.data.LikesStore
+import ru.yamus.app.core.download.OfflineLibrary
 import ru.yamus.app.core.player.PlaybackManager
 import ru.yamus.app.core.util.AppScope
 import ru.yamus.app.core.util.artistText
 import ru.yamus.app.core.util.coverUrl
 import ru.yamus.app.core.util.displayTitle
+import java.io.File
 
 /**
  * Мини-плеер и нижняя панель навигации. Одинаково работает на главной
@@ -39,10 +41,18 @@ class ChromeController(
     private var activeTab = activeTab
     private var started = false
     private var lastTrackId: String? = null
+    private var lastCoverKey: String? = null
     private var lastPlaying: Boolean? = null
     private var lastLiked: Boolean? = null
 
     private val likesListener: () -> Unit = { refresh() }
+
+    /** Обложка скачанного трека извлекается из файла асинхронно. */
+    private val offlineListener = object : OfflineLibrary.Listener {
+        override fun onLibraryChanged() {
+            activity.runOnUiThread { refresh() }
+        }
+    }
 
     init {
         tabViews[0] = activity.findViewById(R.id.tabHome)
@@ -77,6 +87,7 @@ class ChromeController(
         started = true
         PlaybackManager.addListener(this)
         LikesStore.addListener(likesListener)
+        OfflineLibrary.addListener(offlineListener)
         refresh()
     }
 
@@ -85,6 +96,7 @@ class ChromeController(
         started = false
         PlaybackManager.removeListener(this)
         LikesStore.removeListener(likesListener)
+        OfflineLibrary.removeListener(offlineListener)
     }
 
     override fun onPlaybackChanged() {
@@ -94,10 +106,14 @@ class ChromeController(
     private fun updateTabs() {
         val accent = ThemeManager.color(activity, R.attr.yamusAccent)
         val inactive = ThemeManager.color(activity, R.attr.yamusTextSub)
+        val caps = ThemeManager.isTerminal(activity)
         for (i in tabViews.indices) {
             val color = if (i == activeTab) accent else inactive
             tabIcons[i]?.setTintColor(color)
-            tabTexts[i]?.setTextColor(color)
+            tabTexts[i]?.apply {
+                setTextColor(color)
+                isAllCaps = caps
+            }
         }
     }
 
@@ -107,6 +123,7 @@ class ChromeController(
         if (track == null) {
             player.visibility = View.GONE
             lastTrackId = null
+            lastCoverKey = null
             lastPlaying = null
             lastLiked = null
             return
@@ -117,9 +134,19 @@ class ChromeController(
             lastTrackId = track.id
             miniTitle?.text = track.displayTitle()
             miniArtist?.text = track.artistText()
+        }
+
+        // У скачанного трека обложка встроена в файл и может появиться
+        // позже (извлекается из тега). Сначала показываем сетевую, затем
+        // подменяем её локальной, когда OfflineLibrary её подготовит.
+        val offlineCover = OfflineLibrary.coverModel(activity, track) as? File
+        val url = track.coverUrl(200)
+        val coverKey = offlineCover?.absolutePath ?: url
+        if (lastCoverKey != coverKey) {
+            lastCoverKey = coverKey
             miniCover?.let {
                 Glide.with(activity)
-                    .load(track.coverUrl(200))
+                    .load(offlineCover ?: url)
                     .apply(coverOptions(activity, 6))
                     .into(it)
             }

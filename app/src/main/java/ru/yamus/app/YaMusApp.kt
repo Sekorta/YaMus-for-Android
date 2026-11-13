@@ -3,7 +3,9 @@ package ru.yamus.app
 import android.app.Activity
 import android.app.Application
 import android.content.ComponentCallbacks2
+import android.content.Context
 import android.os.Bundle
+import androidx.multidex.MultiDex
 import com.bumptech.glide.Glide
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -11,6 +13,7 @@ import kotlinx.coroutines.launch
 import ru.yamus.app.core.api.ApiClient
 import ru.yamus.app.core.auth.TokenStorage
 import ru.yamus.app.core.data.WaveHistoryStore
+import ru.yamus.app.core.download.OfflineLibrary
 import ru.yamus.app.core.net.TlsSupport
 import ru.yamus.app.core.player.MediaSessionController
 import ru.yamus.app.core.player.PlaybackManager
@@ -23,6 +26,12 @@ class YaMusApp : Application() {
     private var startedActivities = 0
     private var cacheClearJob: Job? = null
 
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(base)
+        // На Android 4.x Dalvik не умеет читать несколько dex из APK сам.
+        MultiDex.install(this)
+    }
+
     override fun onCreate() {
         super.onCreate()
         // Обязательно до первого HTTPS-запроса.
@@ -32,6 +41,8 @@ class YaMusApp : Application() {
         ApiClient.token = (TokenStorage.token)
         PlaybackManager.init(this)
         MediaSessionController.init(this)
+        // Индекс офлайн-библиотеки читается в фоне и не мешает старту.
+        OfflineLibrary.init(this)
         registerActivityLifecycleCallbacks(activityCallbacks)
         AppScope.launch {
             // Glide инициализируем на главном потоке, как он того требует,
@@ -52,6 +63,8 @@ class YaMusApp : Application() {
      * не накапливаются между сеансами.
      */
     private suspend fun clearLeftoverCache() {
+        // Пользователь может отключить автоматическую очистку кэша.
+        if (!TokenStorage.autoClearCache) return
         try {
             CacheManager.clear(this)
         } catch (_: Exception) {
@@ -110,6 +123,7 @@ class YaMusApp : Application() {
     private fun clearCacheNow() {
         cacheClearJob?.cancel()
         cacheClearJob = null
+        if (!TokenStorage.autoClearCache) return
         if (PlaybackManager.isPlaying || PlaybackManager.isPreparing) return
         AppScope.launch { CacheManager.clear(this@YaMusApp) }
     }

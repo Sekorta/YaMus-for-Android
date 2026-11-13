@@ -27,6 +27,8 @@ import ru.yamus.app.ui.common.IconView
 import ru.yamus.app.ui.common.Navigation
 import ru.yamus.app.ui.common.ThemeManager
 import ru.yamus.app.ui.common.TrackAdapter
+import ru.yamus.app.ui.common.applyTerminalTypeface
+import ru.yamus.app.ui.common.bindTerminalPrompt
 import ru.yamus.app.ui.common.fieldBackground
 import ru.yamus.app.ui.common.setBackgroundCompat
 
@@ -81,6 +83,18 @@ class SearchFragment : Fragment() {
             view.findViewById(R.id.tabArtistsIndicator),
             view.findViewById(R.id.tabAlbumsIndicator)
         )
+
+        applyTerminalTypeface(view)
+        bindTerminalPrompt(
+            view.findViewById(R.id.terminalPrompt),
+            view.findViewById(R.id.terminalPromptText),
+            R.string.terminal_prompt_search
+        )
+        if (ThemeManager.isTerminal(requireContext())) {
+            input.hint = "> " + getString(R.string.search_hint)
+            tabs.forEach { it.isAllCaps = true }
+            empty.text = terminalMessage(getString(R.string.search_start))
+        }
 
         // Поле поиска: скруглённая плашка в современном стиле и рамка —
         // в стиле Android 4. Фон ставим после инфляции, чтобы отступы
@@ -202,16 +216,20 @@ class SearchFragment : Fragment() {
     }
 
     private fun showEmptyIf(isEmpty: Boolean) {
-        empty.text = getString(R.string.search_empty)
+        empty.text = terminalMessage(getString(R.string.search_empty))
         empty.visibility = if (isEmpty) View.VISIBLE else View.GONE
     }
 
     private fun showEmpty(message: String) {
         list.adapter = null
-        empty.text = message
+        empty.text = terminalMessage(message)
         empty.visibility = View.VISIBLE
         progress.visibility = View.GONE
     }
+
+    /** В терминальном стиле подсказки начинаются с приглашения. */
+    private fun terminalMessage(message: String): String =
+        if (ThemeManager.isTerminal(requireContext())) "> $message" else message
 
     private fun showLoading(loading: Boolean) {
         progress.visibility = if (loading) View.VISIBLE else View.GONE

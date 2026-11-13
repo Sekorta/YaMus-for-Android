@@ -25,9 +25,11 @@ import com.bumptech.glide.Glide
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.yamus.app.R
+import ru.yamus.app.core.auth.TokenStorage
 import ru.yamus.app.core.data.AccountStore
 import ru.yamus.app.core.data.DislikesStore
 import ru.yamus.app.core.data.LikesStore
+import ru.yamus.app.core.download.OfflineLibrary
 import ru.yamus.app.core.models.Track
 import ru.yamus.app.core.util.AppScope
 import ru.yamus.app.core.util.CacheManager
@@ -235,6 +237,7 @@ class PlaybackService : Service() {
      */
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
+        if (!TokenStorage.autoClearCache) return
         if (PlaybackManager.isPlaying || PlaybackManager.isPreparing) return
         AppScope.launch {
             try {
@@ -309,12 +312,22 @@ class PlaybackService : Service() {
         largeIconTrackId = track.id
         largeIcon = null
 
-        val url = track.coverUrl(300) ?: return
+        // У скачанного трека обложка лежит внутри файла. Достаём её, только
+        // если файл есть локально: в остальных случаях грузим из сети.
+        val offline = OfflineLibrary.find(track)
+        val url = track.coverUrl(300)
+        if (offline == null && url == null) return
         AppScope.launch(Dispatchers.IO) {
+            val model: Any? = if (offline != null) {
+                OfflineLibrary.coverFileSync(applicationContext, offline)
+            } else {
+                url
+            }
+            if (model == null) return@launch
             val bitmap = try {
                 Glide.with(applicationContext)
                     .asBitmap()
-                    .load(url)
+                    .load(model)
                     .submit(200, 200)
                     .get(10, TimeUnit.SECONDS)
             } catch (_: Exception) {

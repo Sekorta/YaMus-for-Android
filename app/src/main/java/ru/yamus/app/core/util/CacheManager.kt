@@ -4,16 +4,24 @@ import android.content.Context
 import com.bumptech.glide.Glide
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import ru.yamus.app.core.download.OfflineLibrary
 import ru.yamus.app.core.player.TrackDownloader
 import java.io.File
 
-/** Общая очистка дискового кэша треков и обложек. */
+/**
+ * Общая очистка дискового кэша треков и обложек.
+ *
+ * Пользовательская библиотека «YaMus Library» сюда не входит: скачанные
+ * треки лежат в общей памяти, принадлежат пользователю и не удаляются ни
+ * при чистке кэша, ни при выходе из аккаунта.
+ */
 object CacheManager {
 
     fun size(context: Context): Long {
         var total = TrackDownloader.cacheSize(context)
         total += dirSize(File(context.cacheDir, "glide-cache"))
         total += dirSize(File(context.cacheDir, "image_manager_disk_cache"))
+        total += dirSize(File(context.cacheDir, "offline-tmp"))
         return total
     }
 
@@ -32,6 +40,14 @@ object CacheManager {
     suspend fun clear(context: Context) {
         withContext(Dispatchers.IO) {
             TrackDownloader.clear(context)
+            // Обложки скачанных треков живут в filesDir/offline-covers и
+            // переживают очистку кэша. Старый каталог в cacheDir не трогаем:
+            // OfflineLibrary перенесёт его при первом обращении к обложке.
+            // Незавершённая загрузка пишет во временную папку: не выдёргиваем
+            // файл из-под активного скачивания.
+            if (!OfflineLibrary.isDownloading()) {
+                deleteDir(File(context.cacheDir, "offline-tmp"))
+            }
             try {
                 Glide.get(context).clearDiskCache()
             } catch (_: Exception) {
@@ -39,6 +55,16 @@ object CacheManager {
         }
         try {
             Glide.get(context).clearMemory()
+        } catch (_: Exception) {
+        }
+    }
+
+    private fun deleteDir(dir: File) {
+        try {
+            dir.listFiles()?.forEach { child ->
+                if (child.isDirectory) deleteDir(child)
+                child.delete()
+            }
         } catch (_: Exception) {
         }
     }

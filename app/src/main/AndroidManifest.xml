@@ -8,6 +8,17 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- Своя библиотека на Android 4–9 лежит в корне общей памяти. -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+    <!-- Чтение своей библиотеки после переустановки и на Android 10–12. -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <!-- Android 13+: доступ к аудио для поиска уже скачанных треков. -->
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+
     <application
         android:name=".YaMusApp"
         android:allowBackup="true"
@@ -43,6 +54,14 @@
 
         <activity
             android:name=".ui.playlist.PlaylistActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.downloads.DownloadsActivity"
             android:exported="false" />
 
         <!-- Ссылки music.yandex.* открываются в приложении. Прозрачная

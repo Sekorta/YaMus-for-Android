@@ -1,7 +1,9 @@
 package ru.yamus.app.ui.common
 
+import android.graphics.drawable.GradientDrawable
 import android.os.Handler
 import android.os.Looper
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,9 +11,11 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ru.yamus.app.R
+import ru.yamus.app.core.download.OfflineLibrary
 import ru.yamus.app.core.models.Album
 import ru.yamus.app.core.models.Artist
 import ru.yamus.app.core.models.PlaylistSummary
@@ -24,6 +28,7 @@ import ru.yamus.app.core.util.dp
 import ru.yamus.app.core.util.formatDuration
 import ru.yamus.app.core.util.imageUrl
 import ru.yamus.app.core.util.ownerName
+import java.io.File
 import java.util.Collections
 import java.util.WeakHashMap
 
@@ -45,12 +50,18 @@ object TrackRowBinder {
         val duration: TextView,
         val cover: ImageView,
         val playing: IconView?,
+        val offline: IconView?,
+        val format: TextView?,
         val more: View
     ) {
         var boundTrack: Track? = null
         var boundCoverUrl: String? = null
         var boundTrackId: String? = null
+        var boundCurrent: Boolean? = null
         var boundAccent: Boolean? = null
+        var boundOffline: Boolean? = null
+        var boundFormat: String? = null
+        var boundHighlight: Boolean? = null
     }
 
     private fun views(row: View): Views {
@@ -61,6 +72,8 @@ object TrackRowBinder {
             row.findViewById(R.id.trackDuration),
             row.findViewById(R.id.trackCover),
             row.findViewById(R.id.trackPlaying),
+            row.findViewById(R.id.trackOffline),
+            row.findViewById(R.id.trackFormat),
             row.findViewById(R.id.trackMore)
         )
         row.setTag(R.id.track_row_views, created)
@@ -73,12 +86,26 @@ object TrackRowBinder {
                 handler.post { refreshPlayingRows() }
             }
         })
+        // Скачивание завершилось или трек удалили — обновляем пометки в
+        // видимых строках, не дожидаясь пересоздания списка.
+        OfflineLibrary.addListener(object : OfflineLibrary.Listener {
+            override fun onLibraryChanged() {
+                handler.post { refreshOfflineRows() }
+            }
+        })
     }
 
     fun inflate(parent: ViewGroup): View =
-        LayoutInflater.from(parent.context).inflate(R.layout.item_track, parent, false)
+        LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_track, parent, false)
+            .also { applyTerminalTypeface(it) }
 
-    fun bind(row: View, track: Track, onPlay: () -> Unit) {
+    fun bind(
+        row: View,
+        track: Track,
+        highlight: Boolean = false,
+        onPlay: () -> Unit
+    ) {
         val v = views(row)
         // RecyclerView часто отдаёт ту же строку тому же треку (прокрутка
         // туда-обратно). Повторно форматировать и грузить картинку незачем.
@@ -88,28 +115,9 @@ object TrackRowBinder {
             v.artist.text = track.artistText()
             v.duration.text = formatDuration(track.durationMs)
         }
-
-        val cover = v.cover
-        val url = track.coverUrl(200)
-        if (v.boundCoverUrl != url) {
-            v.boundCoverUrl = url
-            if (url.isNullOrBlank()) {
-                Glide.with(row).clear(cover)
-                cover.setPadding(
-                    row.context.dp(12), row.context.dp(12),
-                    row.context.dp(12), row.context.dp(12)
-                )
-                cover.scaleType = ImageView.ScaleType.FIT_CENTER
-                cover.setImageDrawable(AppCompatResources.getDrawable(row.context, R.drawable.ic_music))
-            } else {
-                cover.setPadding(0, 0, 0, 0)
-                cover.scaleType = ImageView.ScaleType.CENTER_CROP
-                Glide.with(row)
-                    .load(url)
-                    .apply(coverOptions(row.context, 6))
-                    .into(cover)
-            }
-        }
+        applyOfflineState(row, track)
+        applyHighlight(row, highlight)
+        updateCover(row, track)
 
         row.setTag(R.id.trackPlaying, track.id)
         synchronized(rows) { rows.add(row) }
@@ -121,6 +129,75 @@ object TrackRowBinder {
         }
     }
 
+    /** Пометка «скачано» и формат файла для строки трека. */
+    private fun applyOfflineState(row: View, track: Track) {
+        val v = views(row)
+        val entry = OfflineLibrary.find(track)
+        val format = entry?.format?.takeIf { it.isNotBlank() }
+        val offline = format != null
+        if (v.boundOffline == offline && v.boundFormat == format) return
+        v.boundOffline = offline
+        v.boundFormat = format
+        v.offline?.visibility = if (offline) View.VISIBLE else View.GONE
+        v.format?.let { label ->
+            label.visibility = if (offline) View.VISIBLE else View.GONE
+            label.text = format
+        }
+    }
+
+    private fun updateCover(row: View, track: Track) {
+        val v = views(row)
+        val cover = v.cover
+        // У скачанного трека обложка встроена в файл. Пока она извлекается,
+        // показываем сетевую — так строка не остаётся пустой.
+        val offlineCover = OfflineLibrary.coverModel(row.context, track) as? File
+        val url = track.coverUrl(200)
+        val key = offlineCover?.absolutePath ?: url
+        if (v.boundCoverUrl == key) return
+        v.boundCoverUrl = key
+        val model: Any? = offlineCover ?: url
+        if (model == null) {
+            Glide.with(row).clear(cover)
+            cover.setPadding(
+                row.context.dp(12), row.context.dp(12),
+                row.context.dp(12), row.context.dp(12)
+            )
+            cover.scaleType = ImageView.ScaleType.FIT_CENTER
+            cover.setImageDrawable(AppCompatResources.getDrawable(row.context, R.drawable.ic_music))
+        } else {
+            cover.setPadding(0, 0, 0, 0)
+            cover.scaleType = ImageView.ScaleType.CENTER_CROP
+            Glide.with(row)
+                .load(model)
+                .apply(coverOptions(row.context, 6))
+                .into(cover)
+        }
+    }
+
+    /**
+     * Акцентная рамка вокруг строки, к которой ведёт ссылка на трек.
+     * Фон строки в остальное время — обычный ripple.
+     */
+    private fun applyHighlight(row: View, highlight: Boolean) {
+        val v = views(row)
+        if (v.boundHighlight == highlight) return
+        v.boundHighlight = highlight
+        if (highlight) {
+            val accent = ThemeManager.color(row.context, R.attr.yamusAccent)
+            val drawable = GradientDrawable().apply {
+                setColor(ColorUtils.setAlphaComponent(accent, 26))
+                setStroke(row.context.dp(2), accent)
+            }
+            row.background = drawable
+        } else {
+            val out = TypedValue()
+            row.context.theme.resolveAttribute(
+                android.R.attr.selectableItemBackground, out, true
+            )
+            row.setBackgroundResource(out.resourceId)
+        }
+    }
+
     private fun refreshPlayingRows() {
         val snapshot = synchronized(rows) { rows.toList() }
         for (row in snapshot) {
@@ -129,12 +206,31 @@ object TrackRowBinder {
         }
     }
 
+    private fun refreshOfflineRows() {
+        val snapshot = synchronized(rows) { rows.toList() }
+        for (row in snapshot) {
+            if (row.windowToken == null) continue
+            val track = views(row).boundTrack ?: continue
+            applyOfflineState(row, track)
+            updateCover(row, track)
+        }
+    }
+
     private fun updatePlayingState(row: View, trackId: String?) {
         val v = views(row)
         val isCurrent = trackId != null && trackId == PlaybackManager.currentTrack?.id
         val playing = isCurrent && PlaybackManager.isPlaying
-        if (v.boundTrackId == trackId && v.boundAccent == playing) return
+        // Кэшируем и «это текущий трек», и «играет»: при смене трека на
+        // паузе второе значение не меняется, и без boundCurrent иконка
+        // оставалась на прежней строке.
+        if (v.boundTrackId == trackId &&
+            v.boundCurrent == isCurrent &&
+            v.boundAccent == playing
+        ) {
+            return
+        }
         v.boundTrackId = trackId
+        v.boundCurrent = isCurrent
         v.boundAccent = playing
 
         v.playing?.let { icon ->
@@ -232,7 +328,10 @@ class ArtistAdapter(
     override fun getItemCount(): Int = items.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder =
-        Holder(LayoutInflater.from(parent.context).inflate(R.layout.item_artist, parent, false)).also { holder ->
+        Holder(
+            LayoutInflater.from(parent.context).inflate(R.layout.item_artist, parent, false)
+                .also { applyTerminalTypeface(it) }
+        ).also { holder ->
             holder.itemView.findViewById<ImageView>(R.id.artistAvatar)
                 .setCircleBackground(parent.context, R.attr.yamusCard)
         }
@@ -296,7 +395,9 @@ object AlbumRowBinder {
     }
 
     fun inflate(parent: ViewGroup): View =
-        LayoutInflater.from(parent.context).inflate(R.layout.item_album, parent, false)
+        LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_album, parent, false)
+            .also { applyTerminalTypeface(it) }
 
     fun bind(row: View, album: Album, onClick: () -> Unit) {
         val v = views(row)
@@ -380,7 +481,10 @@ class PlaylistAdapter(
     override fun getItemCount(): Int = items.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder =
-        Holder(LayoutInflater.from(parent.context).inflate(R.layout.item_playlist, parent, false))
+        Holder(
+            LayoutInflater.from(parent.context).inflate(R.layout.item_playlist, parent, false)
+                .also { applyTerminalTypeface(it) }
+        )
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val playlist = items.getOrNull(position) ?: return

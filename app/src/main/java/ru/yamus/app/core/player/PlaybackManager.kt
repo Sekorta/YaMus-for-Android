@@ -6,11 +6,15 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.launch
+import ru.yamus.app.core.download.OfflineEntry
+import ru.yamus.app.core.download.OfflineLibrary
 import ru.yamus.app.core.models.Track
 import ru.yamus.app.core.util.AppScope
 import ru.yamus.app.core.util.artistText
@@ -76,6 +80,9 @@ object PlaybackManager {
     private var prepared = false
     private var pendingSeek = -1
     private var errorCount = 0
+    private var prepareRetries = 0
+    private var completionRetries = 0
+    private var playStartedAt = 0L
     private var localFallbackTried = false
     private var httpStreamingBroken = false
     private var localStream: java.io.FileInputStream? = null
@@ -88,6 +95,10 @@ object PlaybackManager {
     private var waveLoadRequested = false
     private var waveEmptyBatches = 0
     private var queueTag: String? = null
+
+    /** Поток, из которого сейчас играет трек: нужен для автоскачивания. */
+    @Volatile
+    private var currentSource: StreamProxy.Source? = null
 
     /**
      * Позиция играющего трека в очереди. Раньше индекс искался по id, но
@@ -532,6 +543,8 @@ object PlaybackManager {
         val context = appContext ?: return
         AppScope.launch {
             if (token != prefetchToken) return@launch
+            // Скачанное в библиотеку уже лежит на диске: сеть не нужна.
+            if (OfflineLibrary.find(next) != null) return@launch
             if (TrackDownloader.cachedFile(context, next.id) != null) return@launch
             val source = TrackUrlResolver.resolve(next)
             if (source == null || token != prefetchToken) return@launch
@@ -563,6 +576,10 @@ object PlaybackManager {
         pendingWavePlay = false
         waveLoadRequested = false
         feedbackStarted = false
+        prepareRetries = 0
+        completionRetries = 0
+        playStartedAt = 0L
+        currentSource = null
         notifyChanged()
         prepareTrack(track, local = false)
     }
@@ -578,6 +595,9 @@ object PlaybackManager {
         val token = ++playToken
         releasePlayer()
         var sourceIsLocal = local || httpStreamingBroken
+        var fromLibrary = false
+        var libraryRetried = false
+        currentSource = null
 
         val player = MediaPlayer()
         mediaPlayer = player
@@ -593,6 +613,8 @@ object PlaybackManager {
             isPreparing = false
             isPlaying = true
             errorCount = 0
+            prepareRetries = 0
+            playStartedAt = SystemClock.elapsedRealtime()
             if (pendingSeek > 0) {
                 try {
                     mp.seekTo(pendingSeek)
@@ -607,10 +629,45 @@ object PlaybackManager {
             requestFocus()
             notifyChanged()
             notifyWaveStarted(track)
+            // Автоскачивание срабатывает именно здесь: пользователь реально
+            // начал слушать трек, а не просто пролистал список.
+            appContext?.let {
+                OfflineLibrary.autoDownload(
+                    it,
+                    track,
+                    currentSource,
+                    fromLikes = queueTag.orEmpty().startsWith("liked")
+                )
+            }
             schedulePrefetch()
         }
         player.setOnCompletionListener {
             if (token != playToken) return@setOnCompletionListener
+            // Обрыв HTTP-потока MediaPlayer иногда показывает как обычное
+            // окончание трека. Отличаем его от настоящего конца по позиции
+            // и реально прошедшему времени: иначе плеер «сам» перескакивал
+            // на следующий трек. Один раз пробуем перезапустить тот же трек.
+            val total = duration()
+            val position = position()
+            val elapsed = if (playStartedAt > 0) {
+                SystemClock.elapsedRealtime() - playStartedAt
+            } else {
+                0L
+            }
+            val truncated = total > 15_000 &&
+                position < total - 3_000 &&
+                elapsed < total - 5_000
+            if (truncated && completionRetries < 1) {
+                completionRetries++
+                isPlaying = false
+                isPreparing = true
+                prepared = false
+                notifyChanged()
+                mainHandler.postDelayed({
+                    if (token == playToken) prepareTrack(track, local = false)
+                }, 400)
+                return@setOnCompletionListener
+            }
             isPlaying = false
             notifyWaveFinished(track)
             advance(true)
@@ -621,6 +678,19 @@ object PlaybackManager {
             isPlaying = false
             prepared = false
             notifyChanged()
+            if (fromLibrary && !libraryRetried) {
+                // Файл в библиотеке повреждён или удалён вручную: убираем
+                // запись из индекса и пробуем обычный поток из сети.
+                libraryRetried = true
+                fromLibrary = false
+                appContext?.let { OfflineLibrary.forget(it, track) }
+                isPreparing = true
+                notifyChanged()
+                mainHandler.postDelayed({
+                    if (token == playToken) prepareTrack(track, local = false)
+                }, 500)
+                return@setOnErrorListener true
+            }
             if (!sourceIsLocal && !localFallbackTried) {
                 // 100 = MEDIA_ERROR_SERVER_DIED: прошивка уронила media server
                 // на HTTP-потоке, дальше в этой сессии сразу идём в локальный файл.
@@ -643,7 +713,22 @@ object PlaybackManager {
 
         AppScope.launch {
             val context = appContext
-            // Уже предзагруженный трек играем из кэша — это и есть предзагрузка.
+            // 1. Скачанное в «YaMus Library» играем прямо с диска: это
+            // работает без сети и отдаёт ровно тот файл, который сохранили.
+            if (!local && context != null) {
+                val entry = OfflineLibrary.find(track)
+                if (entry != null) {
+                    if (token != playToken) return@launch
+                    if (playOffline(player, context, entry, token)) {
+                        sourceIsLocal = true
+                        fromLibrary = true
+                        return@launch
+                    }
+                    OfflineLibrary.forget(context, track)
+                }
+            }
+
+            // 2. Уже предзагруженный трек играем из приватного кэша.
             val cached = if (!local && context != null) {
                 TrackDownloader.cachedFile(context, track.id)
             } else {
@@ -662,6 +747,7 @@ object PlaybackManager {
                 onPrepareFailed(token)
                 return@launch
             }
+            currentSource = source
             try {
                 if (local || httpStreamingBroken) {
                     val file = context?.let {
@@ -685,6 +771,38 @@ object PlaybackManager {
             } catch (_: Exception) {
                 onPrepareFailed(token)
             }
+        }
+    }
+
+    /** Проигрывает файл из пользовательской библиотеки. */
+    private fun playOffline(
+        player: MediaPlayer,
+        context: Context,
+        entry: OfflineEntry,
+        token: Int
+    ): Boolean {
+        if (token != playToken) return false
+        return try {
+            val uri = entry.uri
+            if (!uri.isNullOrBlank()) {
+                player.setDataSource(context, Uri.parse(uri))
+                player.prepareAsync()
+                true
+            } else {
+                val path = entry.path ?: return false
+                val stream = FileInputStream(path)
+                localStream = stream
+                player.setDataSource(stream.fd)
+                player.prepareAsync()
+                true
+            }
+        } catch (_: Exception) {
+            try {
+                localStream?.close()
+            } catch (_: Exception) {
+            }
+            localStream = null
+            false
         }
     }
 
@@ -726,6 +844,21 @@ object PlaybackManager {
     private fun onPrepareFailed(token: Int) {
         if (token != playToken) return
         isPreparing = false
+        isPlaying = false
+        prepared = false
+        // Разовый сбой сети или ответа API не должен означать «пропустить
+        // трек»: сначала пробуем тот же трек ещё пару раз.
+        val track = currentTrack
+        if (track != null && prepareRetries < 2) {
+            prepareRetries++
+            isPreparing = true
+            notifyChanged()
+            mainHandler.postDelayed({
+                if (token == playToken) prepareTrack(track, local = false)
+            }, 500L * prepareRetries)
+            return
+        }
+        prepareRetries = 0
         notifyChanged()
         errorCount++
         if (errorCount <= 5) {

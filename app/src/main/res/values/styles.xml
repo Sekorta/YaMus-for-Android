@@ -42,6 +42,7 @@
         <item name="yamusBarLine">0dp</item>
         <item name="yamusFlat">false</item>
         <item name="yamusHeaderCaps">false</item>
+        <item name="yamusTerminal">false</item>
     </style>
 
     <!-- Android 4 (Holo): прямые углы, плоские поверхности, тонкие линии,
@@ -98,6 +99,7 @@
         <item name="yamusBarLine">0dp</item>
         <item name="yamusFlat">false</item>
         <item name="yamusHeaderCaps">false</item>
+        <item name="yamusTerminal">false</item>
     </style>
 
     <style name="Theme.YaMus.Dark.Holo" parent="Theme.YaMus.Dark">
@@ -153,6 +155,7 @@
         <item name="yamusBarLine">0dp</item>
         <item name="yamusFlat">false</item>
         <item name="yamusHeaderCaps">false</item>
+        <item name="yamusTerminal">false</item>
     </style>
 
     <style name="Theme.YaMus.Light.Holo" parent="Theme.YaMus.Light">
@@ -171,6 +174,69 @@
         <item name="yamusBarLine">1dp</item>
         <item name="yamusFlat">true</item>
         <item name="yamusHeaderCaps">true</item>
+    </style>
+
+    <!--
+        Терминал: те же прямые углы, но ещё плотнее, с тонкой акцентной
+        линией, моноширинным шрифтом и приглашением с мигающим курсором.
+        Цвета по-прежнему берутся из палитры: на чёрной теме акцент даёт
+        янтарный терминал, на тёмной и светлой — синий.
+    -->
+    <style name="Theme.YaMus.Black.Terminal" parent="Theme.YaMus.Black">
+        <item name="yamusCorner">0dp</item>
+        <item name="yamusCornerSmall">0dp</item>
+        <item name="yamusCornerPill">0dp</item>
+        <item name="yamusCoverCorner">0</item>
+        <item name="yamusRowPadding">5dp</item>
+        <item name="yamusRowDivider">1dp</item>
+        <item name="yamusCardMargin">0dp</item>
+        <item name="yamusElevation">0dp</item>
+        <item name="yamusCoverElevation">0dp</item>
+        <item name="yamusToolbarLine">1dp</item>
+        <item name="yamusToolbarLineColor">#FFFFCC00</item>
+        <item name="yamusTabIndicator">2dp</item>
+        <item name="yamusBarLine">1dp</item>
+        <item name="yamusFlat">true</item>
+        <item name="yamusHeaderCaps">true</item>
+        <item name="yamusTerminal">true</item>
+    </style>
+
+    <style name="Theme.YaMus.Dark.Terminal" parent="Theme.YaMus.Dark">
+        <item name="yamusCorner">0dp</item>
+        <item name="yamusCornerSmall">0dp</item>
+        <item name="yamusCornerPill">0dp</item>
+        <item name="yamusCoverCorner">0</item>
+        <item name="yamusRowPadding">5dp</item>
+        <item name="yamusRowDivider">1dp</item>
+        <item name="yamusCardMargin">0dp</item>
+        <item name="yamusElevation">0dp</item>
+        <item name="yamusCoverElevation">0dp</item>
+        <item name="yamusToolbarLine">1dp</item>
+        <item name="yamusToolbarLineColor">#FF3B82F6</item>
+        <item name="yamusTabIndicator">2dp</item>
+        <item name="yamusBarLine">1dp</item>
+        <item name="yamusFlat">true</item>
+        <item name="yamusHeaderCaps">true</item>
+        <item name="yamusTerminal">true</item>
+    </style>
+
+    <style name="Theme.YaMus.Light.Terminal" parent="Theme.YaMus.Light">
+        <item name="yamusCorner">0dp</item>
+        <item name="yamusCornerSmall">0dp</item>
+        <item name="yamusCornerPill">0dp</item>
+        <item name="yamusCoverCorner">0</item>
+        <item name="yamusRowPadding">5dp</item>
+        <item name="yamusRowDivider">1dp</item>
+        <item name="yamusCardMargin">0dp</item>
+        <item name="yamusElevation">0dp</item>
+        <item name="yamusCoverElevation">0dp</item>
+        <item name="yamusToolbarLine">1dp</item>
+        <item name="yamusToolbarLineColor">#FF2563EB</item>
+        <item name="yamusTabIndicator">2dp</item>
+        <item name="yamusBarLine">1dp</item>
+        <item name="yamusFlat">true</item>
+        <item name="yamusHeaderCaps">true</item>
+        <item name="yamusTerminal">true</item>
     </style>
 
 </resources>

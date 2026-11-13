@@ -28,7 +28,7 @@ object SettingsDialog {
             activity.getString(R.string.open_link_from_clipboard),
             activity.getString(R.string.logout)
         )
-        AlertDialog.Builder(activity)
+        val dialog = AlertDialog.Builder(activity)
             .setTitle(R.string.settings)
             .setItems(items) { _, which ->
                 when (which) {
@@ -43,6 +43,7 @@ object SettingsDialog {
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
+        styleTerminalDialog(dialog)
     }
 
     private fun qualityLabel(activity: Activity): String = when (TokenStorage.quality) {
@@ -59,6 +60,7 @@ object SettingsDialog {
 
     private fun styleLabel(activity: Activity): String = when (TokenStorage.style) {
         TokenStorage.STYLE_HOLO -> activity.getString(R.string.style_holo)
+        TokenStorage.STYLE_TERMINAL -> activity.getString(R.string.style_terminal)
         else -> activity.getString(R.string.style_modern)
     }
 
@@ -74,7 +76,7 @@ object SettingsDialog {
             activity.getString(R.string.quality_low)
         )
         val checked = values.indexOf(TokenStorage.quality).coerceAtLeast(0)
-        AlertDialog.Builder(activity)
+        val dialog = AlertDialog.Builder(activity)
             .setTitle(R.string.quality)
             .setSingleChoiceItems(labels, checked) { dialog, which ->
                 TokenStorage.quality = values[which]
@@ -83,6 +85,7 @@ object SettingsDialog {
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
+        styleTerminalDialog(dialog)
     }
 
     private fun showTheme(activity: Activity) {
@@ -97,7 +100,7 @@ object SettingsDialog {
             activity.getString(R.string.theme_light)
         )
         val checked = values.indexOf(TokenStorage.theme).coerceAtLeast(0)
-        AlertDialog.Builder(activity)
+        val dialog = AlertDialog.Builder(activity)
             .setTitle(R.string.theme)
             .setSingleChoiceItems(labels, checked) { dialog, which ->
                 TokenStorage.theme = values[which]
@@ -106,19 +109,22 @@ object SettingsDialog {
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
+        styleTerminalDialog(dialog)
     }
 
     private fun showStyle(activity: Activity) {
         val values = arrayOf(
             TokenStorage.STYLE_MODERN,
-            TokenStorage.STYLE_HOLO
+            TokenStorage.STYLE_HOLO,
+            TokenStorage.STYLE_TERMINAL
         )
         val labels = arrayOf(
             activity.getString(R.string.style_modern),
-            activity.getString(R.string.style_holo)
+            activity.getString(R.string.style_holo),
+            activity.getString(R.string.style_terminal)
         )
         val checked = values.indexOf(TokenStorage.style).coerceAtLeast(0)
-        AlertDialog.Builder(activity)
+        val dialog = AlertDialog.Builder(activity)
             .setTitle(R.string.style)
             .setSingleChoiceItems(labels, checked) { dialog, which ->
                 TokenStorage.style = values[which]
@@ -127,6 +133,7 @@ object SettingsDialog {
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
+        styleTerminalDialog(dialog)
     }
 
     private fun clearCache(activity: Activity) {
@@ -137,12 +144,13 @@ object SettingsDialog {
     }
 
     private fun confirmLogout(activity: Activity) {
-        AlertDialog.Builder(activity)
+        val dialog = AlertDialog.Builder(activity)
             .setTitle(R.string.logout)
             .setMessage("Выйти из аккаунта на этом устройстве?")
             .setPositiveButton(R.string.ok) { _, _ -> logout(activity) }
             .setNegativeButton(R.string.cancel, null)
             .show()
+        styleTerminalDialog(dialog)
     }
 
     private fun logout(activity: Activity) {

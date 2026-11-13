@@ -30,10 +30,16 @@ class AlbumActivity : BaseActivity() {
         private const val EXTRA_TRACK_ID = "track_id"
         private const val EXTRA_TITLE = "album_title"
 
-        fun intent(context: Context, albumId: Long, title: String?): Intent =
+        fun intent(
+            context: Context,
+            albumId: Long,
+            title: String?,
+            trackId: String? = null
+        ): Intent =
             Intent(context, AlbumActivity::class.java)
                 .putExtra(EXTRA_ID, albumId)
                 .putExtra(EXTRA_TITLE, title)
+                .putExtra(EXTRA_TRACK_ID, trackId)
 
         /** Ссылка на трек: альбом определяется по самому треку. */
         fun trackIntent(context: Context, trackId: String, title: String? = null): Intent =
@@ -45,11 +51,15 @@ class AlbumActivity : BaseActivity() {
     private lateinit var toolbarTitle: TextView
     private lateinit var progress: ProgressBar
     private lateinit var adapter: AlbumPageAdapter
+    private lateinit var list: RecyclerView
 
     private var tracks: List<Track> = emptyList()
     private var albumId = 0L
     private var artistId = 0L
     private var artistName: String? = null
+
+    /** Трек из ссылки: после загрузки прокручиваем к нему и подсвечиваем. */
+    private var highlightTrackId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +74,7 @@ class AlbumActivity : BaseActivity() {
 
         val albumId = intent.getLongExtra(EXTRA_ID, 0L)
         val trackId = intent.getStringExtra(EXTRA_TRACK_ID)
+        highlightTrackId = trackId?.takeIf { it.isNotBlank() }
         if (albumId <= 0 && trackId.isNullOrBlank()) {
             finish()
             return
@@ -81,10 +92,9 @@ class AlbumActivity : BaseActivity() {
         )
         adapter.renderHeader(null, knownTitle, "", "")
 
-        val list = findViewById<RecyclerView>(R.id.contentList)
+        list = findViewById(R.id.contentList)
         list.layoutManager = LinearLayoutManager(this)
         list.adapter = adapter
-
         if (albumId > 0) {
             load(albumId)
         } else {
@@ -156,6 +166,8 @@ class AlbumActivity : BaseActivity() {
             }
 
             album?.title?.takeIf { it.isNotBlank() }?.let { toolbarTitle.text = it }
+            // Полный id трека из API точнее короткого из ссылки.
+            track?.id?.takeIf { it.isNotBlank() }?.let { highlightTrackId = it }
             load(resolvedId)
         }
     }
@@ -208,7 +220,26 @@ class AlbumActivity : BaseActivity() {
                 artists,
                 meta.toString()
             )
-            adapter.renderTracks(tracks)
+            adapter.renderTracks(tracks, highlightTrackId)
+            scrollToHighlighted()
         }
     }
+
+    /**
+     * Ссылка на трек должна сразу показать его в списке: прокручиваем
+     * к строке и оставляем акцентную рамку, чтобы не искать глазами.
+     */
+    private fun scrollToHighlighted() {
+        val highlighted = highlightTrackId ?: return
+        val position = adapter.positionOfTrack(highlighted)
+        if (position < 0) return
+        list.post {
+            if (isFinishing) return@post
+            (list.layoutManager as? LinearLayoutManager)
+                ?.scrollToPositionWithOffset(position, dp(8))
+        }
+    }
+
+    private fun dp(value: Int): Int =
+        (value * resources.displayMetrics.density + 0.5f).toInt()
 }

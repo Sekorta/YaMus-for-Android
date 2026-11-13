@@ -27,6 +27,7 @@
     <attr name="yamusBarLine" format="dimension" />
     <attr name="yamusFlat" format="boolean" />
     <attr name="yamusHeaderCaps" format="boolean" />
+    <attr name="yamusTerminal" format="boolean" />
 
     <declare-styleable name="IconView">
         <attr name="yamusTint" format="color" />

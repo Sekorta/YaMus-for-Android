@@ -17,16 +17,24 @@ import ru.yamus.app.core.auth.TokenStorage
 import ru.yamus.app.core.data.AccountStore
 import ru.yamus.app.core.data.LikesStore
 import ru.yamus.app.core.data.PlaylistRepository
+import ru.yamus.app.core.download.OfflineLibrary
+import ru.yamus.app.core.util.CacheManager
 import ru.yamus.app.core.util.coverUrl
 import ru.yamus.app.ui.common.PlaylistAdapter
-import ru.yamus.app.ui.common.SettingsDialog
 import ru.yamus.app.ui.common.applySectionHeaderStyle
+import ru.yamus.app.ui.common.applyTerminalTypeface
+import ru.yamus.app.ui.common.bindTerminalPrompt
+import ru.yamus.app.ui.common.setSectionHeaderText
+import ru.yamus.app.ui.downloads.DownloadsActivity
 import ru.yamus.app.ui.playlist.PlaylistActivity
+import ru.yamus.app.ui.settings.SettingsActivity
 
 class MeFragment : Fragment() {
 
     private lateinit var likedRow: View
     private lateinit var likedCount: TextView
+    private lateinit var downloadsRow: View
+    private lateinit var downloadsValue: TextView
     private lateinit var list: RecyclerView
     private lateinit var empty: TextView
     private lateinit var progress: ProgressBar
@@ -35,6 +43,17 @@ class MeFragment : Fragment() {
     private var loadJob: Job? = null
 
     private val likesListener: () -> Unit = { updateLikedCount() }
+
+    private val libraryListener = object : OfflineLibrary.Listener {
+        override fun onLibraryChanged() {
+            if (!isAdded) return
+            requireActivity().runOnUiThread { updateDownloadsCard() }
+        }
+    }
+
+    /** Оформление могло измениться на экране настроек. */
+    private var appliedTheme: String? = null
+    private var appliedStyle: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,10 +65,24 @@ class MeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         likedRow = view.findViewById(R.id.likedRow)
         likedCount = view.findViewById(R.id.likedCount)
+        downloadsRow = view.findViewById(R.id.downloadsRow)
+        downloadsValue = view.findViewById(R.id.downloadsValue)
         list = view.findViewById(R.id.playlistsList)
         empty = view.findViewById(R.id.meEmpty)
         progress = view.findViewById(R.id.meProgress)
-        view.findViewById<TextView>(R.id.playlistsHeader).applySectionHeaderStyle()
+        appliedTheme = TokenStorage.theme
+        appliedStyle = TokenStorage.style
+
+        applyTerminalTypeface(view)
+        bindTerminalPrompt(
+            view.findViewById(R.id.terminalPrompt),
+            view.findViewById(R.id.terminalPromptText),
+            R.string.terminal_prompt_me
+        )
+        view.findViewById<TextView>(R.id.playlistsHeader).apply {
+            applySectionHeaderStyle()
+            setSectionHeaderText(R.string.playlists)
+        }
 
         adapter = PlaylistAdapter { playlist ->
             val uid = AccountStore.uid
@@ -76,26 +109,49 @@ class MeFragment : Fragment() {
         }
 
         view.findViewById<View>(R.id.settingsButton).setOnClickListener {
-            SettingsDialog.show(requireActivity())
+            startActivity(SettingsActivity.intent(requireContext()))
+        }
+
+        downloadsRow.setOnClickListener {
+            startActivity(DownloadsActivity.intent(requireContext()))
         }
 
         updateLikedCount()
+        updateDownloadsCard()
     }
 
     override fun onStart() {
         super.onStart()
         LikesStore.addListener(likesListener)
+        OfflineLibrary.addListener(libraryListener)
     }
 
     override fun onStop() {
         LikesStore.removeListener(likesListener)
+        OfflineLibrary.removeListener(libraryListener)
         super.onStop()
     }
 
     override fun onResume() {
         super.onResume()
+        if (appliedTheme != TokenStorage.theme || appliedStyle != TokenStorage.style) {
+            requireActivity().recreate()
+            return
+        }
         updateLikedCount()
+        updateDownloadsCard()
         load()
+    }
+
+    private fun updateDownloadsCard() {
+        if (!isAdded) return
+        val count = OfflineLibrary.entries().size
+        downloadsValue.text = if (count > 0) {
+            getString(R.string.tracks_count, count) + " · " +
+                CacheManager.formatSize(OfflineLibrary.totalSize())
+        } else {
+            getString(R.string.downloads_empty)
+        }
     }
 
     private fun updateLikedCount() {

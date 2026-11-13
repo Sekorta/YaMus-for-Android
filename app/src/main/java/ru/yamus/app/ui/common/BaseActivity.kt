@@ -3,6 +3,7 @@ package ru.yamus.app.ui.common
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -83,6 +84,23 @@ open class BaseActivity : AppCompatActivity() {
         // заметно тормозит запуск экранов на старых телефонах.
     }
 
+    // В терминальном стиле весь текст экрана переводится на моноширинный
+    // шрифт. Переопределяем setContentView, чтобы не трогать каждый экран.
+    override fun setContentView(layoutResID: Int) {
+        super.setContentView(layoutResID)
+        applyTerminalTypeface(findViewById(android.R.id.content))
+    }
+
+    override fun setContentView(view: View) {
+        super.setContentView(view)
+        applyTerminalTypeface(view)
+    }
+
+    override fun setContentView(view: View, params: ViewGroup.LayoutParams) {
+        super.setContentView(view, params)
+        applyTerminalTypeface(view)
+    }
+
     private fun ensurePlayerSheet(): PlayerSheet {
         playerSheet?.let { return it }
         val created = PlayerSheet(this)
@@ -122,6 +140,14 @@ open class BaseActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PlaybackNotifications.REQUEST_CODE) {
             PlaybackNotifications.onPermissionResult(this)
+        }
+        if (requestCode == StoragePermission.REQUEST_WRITE ||
+            requestCode == StoragePermission.REQUEST_READ
+        ) {
+            StoragePermission.onRequestPermissionsResult(
+                requestCode,
+                StoragePermission.isGranted(this, permissions, grantResults)
+            )
         }
     }
 

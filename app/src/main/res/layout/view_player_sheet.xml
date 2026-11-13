@@ -43,6 +43,7 @@
                 app:yamusTint="?attr/yamusText" />
 
             <TextView
+                android:id="@+id/playerHeader"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -131,6 +132,32 @@
                             android:maxLines="1"
                             android:textColor="?attr/yamusTextSub"
                             android:textSize="14sp" />
+
+                        <!-- Пометка «скачано» и формат файла из библиотеки. -->
+                        <LinearLayout
+                            android:id="@+id/offlineBadge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:visibility="gone">
+
+                            <ru.yamus.app.ui.common.IconView
+                                android:layout_width="13dp"
+                                android:layout_height="13dp"
+                                android:layout_marginRight="4dp"
+                                android:contentDescription="@string/offline_badge"
+                                app:srcCompat="@drawable/ic_downloaded"
+                                app:yamusTint="?attr/yamusAccent" />
+
+                            <TextView
+                                android:id="@+id/formatLabel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="?attr/yamusAccent"
+                                android:textSize="11sp" />
+                        </LinearLayout>
                     </LinearLayout>
 
                     <ru.yamus.app.ui.common.IconView

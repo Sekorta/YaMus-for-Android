@@ -12,6 +12,30 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Приглашение псевдотерминала: видно только в стиле «Терминал». -->
+        <LinearLayout
+            android:id="@+id/terminalPrompt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/terminalPromptText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/yamusAccent"
+                android:textSize="13sp" />
+
+            <ru.yamus.app.ui.common.TerminalCursorView
+                android:id="@+id/terminalPromptCursor"
+                android:layout_width="8dp"
+                android:layout_height="14dp"
+                android:layout_marginLeft="4dp" />
+        </LinearLayout>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

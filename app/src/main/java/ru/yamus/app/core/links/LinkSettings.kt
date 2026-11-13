@@ -13,6 +13,7 @@ import androidx.appcompat.app.AlertDialog
 import ru.yamus.app.R
 import ru.yamus.app.core.auth.TokenStorage
 import ru.yamus.app.ui.common.DeepLinks
+import ru.yamus.app.ui.common.styleTerminalDialog
 import ru.yamus.app.ui.login.LoginActivity
 
 /**
@@ -79,7 +80,8 @@ object LinkSettings {
             builder.setPositiveButton(R.string.links_setup) { _, _ -> setup(activity) }
         }
         try {
-            builder.show()
+            val dialog = builder.show()
+            styleTerminalDialog(dialog)
         } catch (_: Exception) {
         }
     }
@@ -95,7 +97,7 @@ object LinkSettings {
             activity.getString(R.string.links_clipboard_auto, state(isClipboardAutoEnabled(activity)))
         )
         try {
-            AlertDialog.Builder(activity)
+            val dialog = AlertDialog.Builder(activity)
                 .setTitle(R.string.links_title)
                 .setItems(items) { _, which ->
                     when (which) {
@@ -105,6 +107,7 @@ object LinkSettings {
                 }
                 .setNegativeButton(R.string.close, null)
                 .show()
+            styleTerminalDialog(dialog)
         } catch (_: Exception) {
         }
     }
@@ -141,12 +144,13 @@ object LinkSettings {
 
         if (activity.isFinishing) return
         try {
-            AlertDialog.Builder(activity)
+            val dialog = AlertDialog.Builder(activity)
                 .setTitle(R.string.link_in_clipboard)
                 .setMessage(R.string.link_in_clipboard_message)
                 .setPositiveButton(R.string.open) { _, _ -> openLink(activity, url) }
                 .setNegativeButton(R.string.later, null)
                 .show()
+            styleTerminalDialog(dialog)
         } catch (_: Exception) {
         }
     }

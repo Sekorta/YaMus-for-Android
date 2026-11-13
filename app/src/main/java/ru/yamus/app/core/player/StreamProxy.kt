@@ -27,7 +27,9 @@ object StreamProxy {
     data class Source(
         val url: String,
         val keyHex: String?,
-        val contentType: String = "audio/mpeg"
+        val contentType: String = "audio/mpeg",
+        /** Кодек из ответа API: mp3, aac, aac-mp4, flac, flac-mp4. */
+        val codec: String = ""
     )
 
     private val started = AtomicBoolean(false)

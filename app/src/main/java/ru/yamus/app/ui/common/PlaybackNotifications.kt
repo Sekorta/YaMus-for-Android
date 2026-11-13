@@ -165,12 +165,13 @@ object PlaybackNotifications {
     }
 
     private fun showSettingsDialog(activity: Activity) {
-        AlertDialog.Builder(activity)
+        val dialog = AlertDialog.Builder(activity)
             .setTitle(R.string.notifications)
             .setMessage(R.string.notifications_blocked)
             .setPositiveButton(R.string.open_settings) { _, _ -> openSettings(activity) }
             .setNegativeButton(R.string.later, null)
             .show()
+        styleTerminalDialog(dialog)
     }
 
     const val REQUEST_CODE = 300

@@ -28,11 +28,17 @@ import ru.yamus.app.core.api.ApiClient
 import ru.yamus.app.core.auth.TokenStorage
 import ru.yamus.app.core.data.AccountStore
 import ru.yamus.app.core.net.TlsSupport
+import ru.yamus.app.core.download.OfflineLibrary
+import ru.yamus.app.core.util.dp
 import ru.yamus.app.ui.common.BaseActivity
 import ru.yamus.app.ui.common.DeepLinks
 import ru.yamus.app.ui.common.ThemeManager
 import ru.yamus.app.ui.common.accentButtonBackground
+import ru.yamus.app.ui.common.accentButtonTextColors
+import ru.yamus.app.ui.common.bindTerminalPrompt
+import ru.yamus.app.ui.common.fieldBackground
 import ru.yamus.app.ui.common.setBackgroundCompat
+import ru.yamus.app.ui.downloads.DownloadsActivity
 import ru.yamus.app.ui.main.MainActivity
 import java.util.concurrent.TimeUnit
 
@@ -103,10 +109,21 @@ class LoginActivity : BaseActivity() {
 
         // Штатная кнопка AppCompat на старых Android серая и не следует
         // палитре, поэтому главные действия красим в акцент темы.
-        val onAccent = ThemeManager.color(this, R.attr.yamusOnAccent)
+        val textColors = accentButtonTextColors(this)
         for (button in arrayOf(saveToken, deviceLogin)) {
             button.setBackgroundCompat(accentButtonBackground(this))
-            button.setTextColor(onAccent)
+            button.setTextColor(textColors)
+        }
+
+        bindTerminalPrompt(
+            findViewById(R.id.terminalPrompt),
+            findViewById(R.id.terminalPromptText),
+            R.string.terminal_prompt_login
+        )
+        if (ThemeManager.isTerminal(this)) {
+            // Поле токена — как строка ввода в консоли: рамка и моноширинный.
+            tokenInput.setBackgroundCompat(fieldBackground(this))
+            tokenInput.setPadding(dp(12), dp(10), dp(12), dp(10))
         }
 
         Log.i(TAG, "TLS: ${TlsSupport.status}")
@@ -122,6 +139,20 @@ class LoginActivity : BaseActivity() {
         }
 
         deviceLogin.setOnClickListener { startDeviceFlow() }
+
+        // Офлайн-доступ: скачанное лежит в общей папке и не зависит от
+        // аккаунта, поэтому послушать его можно ещё до входа.
+        val offline = findViewById<TextView>(R.id.listenOffline)
+        if (OfflineLibrary.libraryMayExist(this)) {
+            offline.visibility = View.VISIBLE
+            val count = OfflineLibrary.entries().size
+            if (count > 0) {
+                offline.text = getString(R.string.listen_offline) + " · " + count
+            }
+            offline.setOnClickListener {
+                startActivity(DownloadsActivity.intent(this))
+            }
+        }
     }
 
     private fun loginWithToken(token: String) {

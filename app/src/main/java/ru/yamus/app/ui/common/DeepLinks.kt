@@ -21,7 +21,23 @@ object DeepLinks {
     fun open(context: Context, destination: MusicDestination) {
         when (destination) {
             is MusicDestination.Album -> {
-                Navigation.openAlbum(context, destination.albumId)
+                // Ссылка на трек внутри альбома должна не только открыть
+                // альбом, но и подсветить нужную строку.
+                if (destination.trackId.isNullOrBlank()) {
+                    Navigation.openAlbum(context, destination.albumId)
+                } else {
+                    try {
+                        context.startActivity(
+                            AlbumActivity.intent(
+                                context,
+                                destination.albumId,
+                                null,
+                                destination.trackId
+                            )
+                        )
+                    } catch (_: Exception) {
+                    }
+                }
             }
 
             is MusicDestination.Track -> {

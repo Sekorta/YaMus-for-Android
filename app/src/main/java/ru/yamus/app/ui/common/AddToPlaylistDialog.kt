@@ -28,7 +28,7 @@ object AddToPlaylistDialog {
             val titles = playlists.map { it.title?.takeIf { t -> t.isNotBlank() } ?: "Плейлист" }
                 .toTypedArray()
 
-            AlertDialog.Builder(context)
+            val dialog = AlertDialog.Builder(context)
                 .setTitle(R.string.add_to_playlist_title)
                 .setItems(titles) { _, which ->
                     val playlist = playlists.getOrNull(which) ?: return@setItems
@@ -42,6 +42,7 @@ object AddToPlaylistDialog {
                 }
                 .setNegativeButton(R.string.cancel, null)
                 .show()
+            styleTerminalDialog(dialog)
         }
     }
 }
